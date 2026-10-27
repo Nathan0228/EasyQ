@@ -1,0 +1,45 @@
+{
+  "expo": {
+    "name": "EasyQ",
+    "slug": "EasyQ",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/easyq-logo-earth.png",
+    "scheme": "easyq",
+    "userInterfaceStyle": "automatic",
+    "ios": {
+      "icon": "./assets/images/easyq-logo-earth.png"
+    },
+    "android": {
+      "predictiveBackGestureEnabled": false
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/images/easyq-logo-earth.png",
+      "name": "EasyQ",
+      "shortName": "EasyQ",
+      "lang": "zh-CN",
+      "display": "standalone",
+      "themeColor": "#315F4E",
+      "backgroundColor": "#F6F4EF",
+      "description": "安静提问，轻松回答。"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#F6F4EF",
+          "image": "./assets/images/easyq-logo-earth.png",
+          "imageWidth": 76
+        }
+      ],
+      "expo-sharing"
+    ],
+    "experiments": {
+      "typedRoutes": true,
+      "reactCompiler": true
+    }
+  }
+}
