@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, View } from "react-native";
 
 import { AppIcon } from "@/components/app-icon";
 import { AppText } from "@/components/app-text";
@@ -58,8 +58,8 @@ export default function Home() {
   }
 
   return (
-    <Screen>
-      <BrandHeader right={passwordConfigured ? (
+    <Screen inNativeTab>
+      <BrandHeader right={passwordConfigured && Platform.OS !== "ios" ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t.history}
@@ -147,7 +147,7 @@ export default function Home() {
         </Card>
       )}
 
-      {passwordConfigured && (
+      {passwordConfigured && Platform.OS !== "ios" && (
         <Pressable accessibilityRole="button" onPress={() => router.push("/history")} className="mt-6 flex-row items-center justify-center gap-2 py-2">
           <AppIcon name="lock" color={colors.secondary} size={15} />
           <AppText className="text-[13px] font-medium" style={{ color: colors.secondary }}>{t.history}</AppText>

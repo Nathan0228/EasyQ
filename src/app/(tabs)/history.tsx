@@ -37,10 +37,12 @@ function HistoryTop({ onLock }: { onLock?: () => void }) {
           <AppIcon name="lock" color={colors.text} size={18} />
         </Pressable>
       ) : undefined} />
-      <Pressable accessibilityRole="button" onPress={() => router.replace("/")} className="mb-6 min-h-10 flex-row items-center gap-2 self-start">
-        <AppIcon name="arrow" color={colors.secondary} size={17} />
-        <AppText className="text-sm" style={{ color: colors.secondary }}>{t.back}</AppText>
-      </Pressable>
+      {Platform.OS !== "ios" && (
+        <Pressable accessibilityRole="button" onPress={() => router.replace("/")} className="mb-6 min-h-10 flex-row items-center gap-2 self-start">
+          <AppIcon name="arrow" color={colors.secondary} size={17} />
+          <AppText className="text-sm" style={{ color: colors.secondary }}>{t.back}</AppText>
+        </Pressable>
+      )}
       <View className="mb-6 overflow-hidden rounded-[32px] px-7 pb-7 pt-8" style={{ backgroundColor: colors.surfaceSoft }}>
         <View className="mb-5 self-start flex-row items-center gap-2 rounded-full px-3 py-1.5" style={{ backgroundColor: colors.surface }}>
           <AppIcon name="lock" color={colors.accent} size={13} />
@@ -145,7 +147,7 @@ export default function History() {
 
   if (!passwordConfigured || !unlocked) {
     return (
-      <Screen>
+      <Screen inNativeTab>
         <HistoryTop />
         <Card>
           <View className="mb-4 h-11 w-11 items-center justify-center rounded-2xl" style={{ backgroundColor: colors.surfaceSoft }}>
@@ -177,8 +179,8 @@ export default function History() {
       contentContainerStyle={{
         alignItems: "stretch",
         flexGrow: 1,
-        paddingTop: Platform.OS === "web" ? 26 : insets.top + 14,
-        paddingBottom: insets.bottom + 36,
+        paddingTop: Platform.OS === "ios" ? 14 : Platform.OS === "web" ? 26 : insets.top + 14,
+        paddingBottom: Platform.OS === "ios" ? 36 : insets.bottom + 36,
       }}
       ListHeaderComponent={
         <View className="w-full px-5 sm:px-7" style={{ width: "100%", maxWidth: 650, alignSelf: "center" }}>

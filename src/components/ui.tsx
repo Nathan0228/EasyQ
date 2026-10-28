@@ -6,7 +6,7 @@ import { AppText } from "@/components/app-text";
 import { useApp } from "@/context/app-context";
 import { copy } from "@/i18n/copy";
 
-export function Screen({ children }: { children: React.ReactNode }) {
+export function Screen({ children, inNativeTab = false }: { children: React.ReactNode; inNativeTab?: boolean }) {
   const { colors } = useApp();
   const insets = useSafeAreaInsets();
   return (
@@ -17,8 +17,8 @@ export function Screen({ children }: { children: React.ReactNode }) {
       contentContainerStyle={{
         flexGrow: 1,
         alignItems: "center",
-        paddingTop: Platform.OS === "web" ? 26 : insets.top + 14,
-        paddingBottom: insets.bottom + 36,
+        paddingTop: inNativeTab && Platform.OS === "ios" ? 14 : Platform.OS === "web" ? 26 : insets.top + 14,
+        paddingBottom: inNativeTab && Platform.OS === "ios" ? 36 : insets.bottom + 36,
       }}
     >
       <View className="w-full px-5 sm:px-7" style={{ maxWidth: 650 }}>
