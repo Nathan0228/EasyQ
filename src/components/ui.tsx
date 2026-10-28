@@ -1,4 +1,4 @@
-import { Image, Platform, Pressable, ScrollView, TextInput, View, type TextInputProps } from "react-native";
+import { Image, Platform, Pressable, ScrollView, TextInput, useWindowDimensions, View, type TextInputProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppIcon } from "@/components/app-icon";
@@ -9,6 +9,8 @@ import { copy } from "@/i18n/copy";
 export function Screen({ children, inNativeTab = false }: { children: React.ReactNode; inNativeTab?: boolean }) {
   const { colors } = useApp();
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
+  const compactWebTab = inNativeTab && Platform.OS === "web" && width < 768;
   return (
     <ScrollView
       className="flex-1"
@@ -18,7 +20,7 @@ export function Screen({ children, inNativeTab = false }: { children: React.Reac
         flexGrow: 1,
         alignItems: "center",
         paddingTop: inNativeTab && Platform.OS === "ios" ? 14 : Platform.OS === "web" ? 26 : insets.top + 14,
-        paddingBottom: inNativeTab && Platform.OS === "ios" ? 36 : insets.bottom + 36,
+        paddingBottom: compactWebTab ? insets.bottom + 128 : inNativeTab && Platform.OS === "ios" ? 36 : insets.bottom + 36,
       }}
     >
       <View className="w-full px-5 sm:px-7" style={{ maxWidth: 650 }}>

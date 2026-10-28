@@ -1,6 +1,6 @@
 import { router, useFocusEffect } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { ActivityIndicator, AppState, FlatList, Platform, Pressable, View } from "react-native";
+import { ActivityIndicator, AppState, FlatList, Platform, Pressable, useWindowDimensions, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppIcon } from "@/components/app-icon";
@@ -23,6 +23,8 @@ function formatDate(value: string, language: "zh" | "en") {
 function HistoryTop({ onLock }: { onLock?: () => void }) {
   const { colors, language } = useApp();
   const t = copy[language];
+  const { width } = useWindowDimensions();
+  const showBack = Platform.OS !== "ios" && (Platform.OS !== "web" || width >= 768);
 
   return (
     <>
@@ -37,7 +39,7 @@ function HistoryTop({ onLock }: { onLock?: () => void }) {
           <AppIcon name="lock" color={colors.text} size={18} />
         </Pressable>
       ) : undefined} />
-      {Platform.OS !== "ios" && (
+      {showBack && (
         <Pressable accessibilityRole="button" onPress={() => router.replace("/")} className="mb-6 min-h-10 flex-row items-center gap-2 self-start">
           <AppIcon name="arrow" color={colors.secondary} size={17} />
           <AppText className="text-sm" style={{ color: colors.secondary }}>{t.back}</AppText>
@@ -67,6 +69,7 @@ export default function History() {
   const { ready, questions, language, colors, passwordConfigured, checkPassword, deleteQuestion, mergeQuestions } = useApp();
   const t = copy[language];
   const insets = useSafeAreaInsets();
+  const { width } = useWindowDimensions();
   const [unlocked, setUnlocked] = useState(false);
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -180,7 +183,7 @@ export default function History() {
         alignItems: "stretch",
         flexGrow: 1,
         paddingTop: Platform.OS === "ios" ? 14 : Platform.OS === "web" ? 26 : insets.top + 14,
-        paddingBottom: Platform.OS === "ios" ? 36 : insets.bottom + 36,
+        paddingBottom: Platform.OS === "ios" ? 36 : Platform.OS === "web" && width < 768 ? insets.bottom + 128 : insets.bottom + 36,
       }}
       ListHeaderComponent={
         <View className="w-full px-5 sm:px-7" style={{ width: "100%", maxWidth: 650, alignSelf: "center" }}>

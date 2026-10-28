@@ -1,6 +1,6 @@
 import { router } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Platform, Pressable, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, useWindowDimensions, View } from "react-native";
 
 import { AppIcon } from "@/components/app-icon";
 import { AppText } from "@/components/app-text";
@@ -13,6 +13,8 @@ import type { QuestionMode } from "@/types/question";
 export default function Home() {
   const { ready, language, colors, passwordConfigured, setupPassword, createQuestion } = useApp();
   const t = copy[language];
+  const { width } = useWindowDimensions();
+  const showInlineHistory = Platform.OS !== "ios" && (Platform.OS !== "web" || width >= 768);
   const [mode, setMode] = useState<QuestionMode>("binary");
   const [question, setQuestion] = useState("");
   const [note, setNote] = useState("");
@@ -59,7 +61,7 @@ export default function Home() {
 
   return (
     <Screen inNativeTab>
-      <BrandHeader right={passwordConfigured && Platform.OS !== "ios" ? (
+      <BrandHeader right={passwordConfigured && showInlineHistory ? (
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t.history}
@@ -147,7 +149,7 @@ export default function Home() {
         </Card>
       )}
 
-      {passwordConfigured && Platform.OS !== "ios" && (
+      {passwordConfigured && showInlineHistory && (
         <Pressable accessibilityRole="button" onPress={() => router.push("/history")} className="mt-6 flex-row items-center justify-center gap-2 py-2">
           <AppIcon name="lock" color={colors.secondary} size={15} />
           <AppText className="text-[13px] font-medium" style={{ color: colors.secondary }}>{t.history}</AppText>

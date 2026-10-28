@@ -44,6 +44,8 @@ npm run build:web
 
 项目使用 Expo 单页网页导出，以便 `/question/...` 等客户端路由在 Cloudflare Pages 上工作。构建产物在 `dist/`。
 
+Cloudflare Pages 运行的是网页版本，即使在 iPhone Safari 中打开也不会运行原生 iOS 组件。手机网页的底部导航使用 CSS 毛玻璃效果；原生 iOS 应用的底栏由系统绘制。修改网页代码后，需要将新提交推送到 Pages 连接的分支并等待重新部署；手动上传项目时则需重新上传最新的 `dist/`。
+
 1. 在 Cloudflare Pages 中连接项目仓库。
 2. 构建命令设为 `npm run build:web`，输出目录设为 `dist`。
 3. 如果要统一使用部署密码，在 Pages 的构建环境变量中设置 `EXPO_PUBLIC_HISTORY_PASSWORD`，然后重新部署。这个值会出现在客户端代码中。
