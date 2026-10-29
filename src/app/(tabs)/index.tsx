@@ -1,160 +1,29 @@
-import { router } from "expo-router";
-import { useState } from "react";
-import { ActivityIndicator, Platform, Pressable, useWindowDimensions, View } from "react-native";
-
-import { AppIcon } from "@/components/app-icon";
+import { Link } from "expo-router";
+import { Pressable, View } from "react-native";
 import { AppText } from "@/components/app-text";
-import { AppButton, AppInput, BrandHeader, Card, Screen, SectionLabel } from "@/components/ui";
+import { Eyebrow, PortalScreen } from "@/components/portal-ui";
 import { useApp } from "@/context/app-context";
-import { copy } from "@/i18n/copy";
-import { showMessage } from "@/lib/dialog";
-import type { QuestionMode } from "@/types/question";
 
-export default function Home() {
-  const { ready, language, colors, passwordConfigured, setupPassword, createQuestion } = useApp();
-  const t = copy[language];
-  const { width } = useWindowDimensions();
-  const showInlineHistory = Platform.OS !== "ios" && (Platform.OS !== "web" || width >= 768);
-  const [mode, setMode] = useState<QuestionMode>("binary");
-  const [question, setQuestion] = useState("");
-  const [note, setNote] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmation, setConfirmation] = useState("");
-  const [error, setError] = useState("");
-  const [busy, setBusy] = useState(false);
-
-  async function handleSetup() {
-    if (password.trim().length < 4) return setError(t.setupInvalid);
-    if (password !== confirmation) return setError(t.setupMismatch);
-    setBusy(true);
-    try {
-      await setupPassword(password);
-      setPassword("");
-      setConfirmation("");
-      setError("");
-    } catch {
-      setError(t.storageError);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function handleCreate() {
-    if (!question.trim()) return setError(t.questionRequired);
-    setBusy(true);
-    try {
-      const id = await createQuestion(question, mode, note);
-      setQuestion("");
-      setNote("");
-      setError("");
-      router.push({ pathname: "/question/[id]", params: { id } });
-    } catch {
-      showMessage(t.storageError);
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  if (!ready) {
-    return <View className="flex-1 items-center justify-center" style={{ backgroundColor: colors.background }}><ActivityIndicator color={colors.accent} /></View>;
-  }
-
-  return (
-    <Screen inNativeTab>
-      <BrandHeader right={passwordConfigured && showInlineHistory ? (
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={t.history}
-          onPress={() => router.push("/history")}
-          className="h-10 w-10 items-center justify-center rounded-full"
-          style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
-        >
-          <AppIcon name="history" color={colors.text} size={19} />
-        </Pressable>
-      ) : undefined} />
-
-      <View className="mb-6 overflow-hidden rounded-[32px] px-7 pb-7 pt-8" style={{ backgroundColor: colors.surfaceSoft }}>
-        <View className="mb-5 self-start rounded-full px-3 py-1.5" style={{ backgroundColor: colors.surface }}>
-          <AppText className="text-xs font-semibold" style={{ color: colors.accent }}>{t.tagline}</AppText>
-        </View>
-        <AppText className="mb-4 text-[36px] font-bold leading-[44px] tracking-tight">{t.homeTitle}</AppText>
-        <AppText className="max-w-[390px] text-[14px] leading-[23px]" style={{ color: colors.secondary }}>{t.homeDescription}</AppText>
-        <View className="mt-7 flex-row items-end justify-end">
-          <View className="mr-[-18px] h-12 w-16 items-center justify-center rounded-[19px] rounded-bl-sm" style={{ backgroundColor: colors.accent }}>
-            <AppText className="text-[22px] font-bold" style={{ color: colors.accentText }}>Q</AppText>
-          </View>
-          <View className="h-11 w-14 items-center justify-center rounded-[17px] rounded-br-sm" style={{ backgroundColor: colors.warm }}>
-            <AppText className="text-[20px] font-bold" style={{ color: colors.warmText }}>A</AppText>
-          </View>
-        </View>
-      </View>
-
-      {!passwordConfigured ? (
-        <Card>
-          <View className="mb-4 h-11 w-11 items-center justify-center rounded-2xl" style={{ backgroundColor: colors.surfaceSoft }}>
-            <AppIcon name="lock" color={colors.accent} size={21} />
-          </View>
-          <AppText className="mb-2 text-[22px] font-bold">{t.setupTitle}</AppText>
-          <AppText className="mb-6 text-[14px] leading-[22px]" style={{ color: colors.secondary }}>{t.setupDescription}</AppText>
-          <View className="gap-3">
-            <AppInput value={password} onChangeText={(value) => { setPassword(value); setError(""); }} placeholder={t.setupPlaceholder} secureTextEntry autoCapitalize="none" maxLength={64} />
-            <AppInput value={confirmation} onChangeText={(value) => { setConfirmation(value); setError(""); }} placeholder={t.setupConfirmPlaceholder} secureTextEntry autoCapitalize="none" maxLength={64} />
-            {Boolean(error) && <AppText className="text-sm" style={{ color: colors.danger }}>{error}</AppText>}
-            <AppButton label={t.setupAction} onPress={() => void handleSetup()} disabled={busy} />
-          </View>
-        </Card>
-      ) : (
-        <Card>
-          <View className="mb-6 flex-row items-center justify-between">
-            <View>
-              <AppText className="text-[22px] font-bold">{t.newQuestion}</AppText>
-              <AppText className="mt-1 text-[13px]" style={{ color: colors.secondary }}>{t.localOnly}</AppText>
-            </View>
-            <View className="h-11 w-11 items-center justify-center rounded-2xl" style={{ backgroundColor: colors.surfaceSoft }}>
-              <AppIcon name="message" color={colors.accent} size={23} />
-            </View>
-          </View>
-
-          <SectionLabel>{t.modeLabel}</SectionLabel>
-          <View className="mb-6 flex-row gap-2.5">
-            {(["binary", "text"] as const).map((option) => {
-              const selected = option === mode;
-              return (
-                <Pressable
-                  key={option}
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: selected }}
-                  onPress={() => setMode(option)}
-                  className="min-h-[92px] flex-1 justify-center rounded-2xl p-3.5"
-                  style={{ backgroundColor: selected ? colors.surfaceSoft : colors.background, borderWidth: 1.5, borderColor: selected ? colors.accent : colors.border }}
-                >
-                  <AppText className="text-[15px] font-semibold" style={{ color: selected ? colors.accent : colors.text }}>
-                    {option === "binary" ? t.binaryMode : t.textMode}
-                  </AppText>
-                  <AppText className="mt-1 text-[11px] leading-4" style={{ color: colors.secondary }}>
-                    {option === "binary" ? t.modeBinaryDescription : t.modeTextDescription}
-                  </AppText>
-                </Pressable>
-              );
-            })}
-          </View>
-
-          <SectionLabel>{t.questionLabel}</SectionLabel>
-          <AppInput value={question} onChangeText={(value) => { setQuestion(value); setError(""); }} placeholder={t.questionPlaceholder} multiline maxLength={240} accessibilityLabel={t.questionLabel} />
-          <View className="h-5" />
-          <SectionLabel>{t.noteLabel}</SectionLabel>
-          <AppInput value={note} onChangeText={setNote} placeholder={t.notePlaceholder} maxLength={300} accessibilityLabel={t.noteLabel} />
-          {Boolean(error) && <AppText className="mt-3 text-sm" style={{ color: colors.danger }}>{error}</AppText>}
-          <View className="mt-6"><AppButton label={t.create} onPress={() => void handleCreate()} disabled={busy} /></View>
-        </Card>
-      )}
-
-      {passwordConfigured && showInlineHistory && (
-        <Pressable accessibilityRole="button" onPress={() => router.push("/history")} className="mt-6 flex-row items-center justify-center gap-2 py-2">
-          <AppIcon name="lock" color={colors.secondary} size={15} />
-          <AppText className="text-[13px] font-medium" style={{ color: colors.secondary }}>{t.history}</AppText>
-        </Pressable>
-      )}
-    </Screen>
-  );
+export default function Portal() {
+  const { colors, language } = useApp();
+  const zh = language === "zh";
+  const features = [
+    { href: "/blog" as const, number: "01", label: zh ? "博客" : "Writing", en: "NOTES & STORIES", description: zh ? "记录想法、技术与生活。让值得留下的文字，有一个自己的地方。" : "A home for thoughts, technology, and stories worth keeping.", action: zh ? "翻开看看" : "Start reading", mark: "Aa", color: colors.warm },
+    { href: "/ask" as const, number: "02", label: zh ? "安静提问" : "Quiet questions", en: "ASK WITHOUT A SOUND", description: zh ? "写下问题，把手机递给对方。在需要安静的时候，也能好好交流。" : "Write a question and hand over your phone. Keep the conversation quiet.", action: zh ? "开始提问" : "Ask a question", mark: "Q?", color: colors.surfaceSoft },
+  ];
+  return <PortalScreen tabs>
+    <View className="pb-10 pt-6 sm:pt-12">
+      <Eyebrow>WELCOME TO EASYQ</Eyebrow>
+      <AppText accessibilityRole="header" className="text-[40px] font-semibold leading-[53px] tracking-tight sm:text-[52px] sm:leading-[66px]">{zh ? "留一点空间，\n给想法和日常。" : "A little space for\nideas and everyday life."}</AppText>
+      <AppText className="mt-6 max-w-[500px] text-base leading-7" style={{ color: colors.secondary }}>{zh ? "这里是 EasyQ。一个慢慢生长的个人门户，收下文字，也放进一些好用的小工具。" : "This is EasyQ. A growing personal space for writing and small, useful tools."}</AppText>
+    </View>
+    <View className="mb-5 flex-row items-center justify-between border-t pt-6" style={{ borderColor: colors.border }}><AppText className="text-sm font-semibold">{zh ? "从这里开始" : "Explore"}</AppText><AppText className="text-xs" style={{ color: colors.secondary }}>02 / SPACES</AppText></View>
+    <View className="gap-4 sm:flex-row">
+      {features.map((feature) => <Link key={feature.href} href={feature.href} asChild><Pressable className="feature-card ui-pressable flex-1 rounded-[26px] border p-6" style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
+        <View className="mb-8 flex-row items-start justify-between"><View className="h-[76px] w-[76px] items-center justify-center rounded-[20px]" style={{ backgroundColor: feature.color }}><AppText className="text-[30px] font-semibold" style={{ color: feature.href === "/blog" ? colors.warmText : colors.accent }}>{feature.mark}</AppText></View><AppText className="text-xs" style={{ color: colors.secondary }}>{feature.number}</AppText></View>
+        <AppText className="mb-2 text-[25px] font-semibold">{feature.label}</AppText><AppText className="mb-4 text-[10px] tracking-[1px]" style={{ color: colors.secondary }}>{feature.en}</AppText><AppText className="min-h-[72px] text-sm leading-6" style={{ color: colors.secondary }}>{feature.description}</AppText><AppText className="mt-6 text-sm font-semibold" style={{ color: colors.accent }}>{feature.action} →</AppText>
+      </Pressable></Link>)}
+    </View>
+    <AppText className="mt-8 text-center text-xs" style={{ color: colors.secondary }}>{zh ? "更多想法，会在这里慢慢发生。" : "More ideas will find a home here."}</AppText>
+  </PortalScreen>;
 }

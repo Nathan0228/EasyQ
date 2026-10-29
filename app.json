@@ -23,7 +23,7 @@
       "display": "standalone",
       "themeColor": "#315F4E",
       "backgroundColor": "#F6F4EF",
-      "description": "安静提问，轻松回答。"
+      "description": "EasyQ：记录想法与生活，也放进一些好用的小工具。"
     },
     "plugins": [
       "expo-router",

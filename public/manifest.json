@@ -1,7 +1,7 @@
 {
   "name": "EasyQ",
   "short_name": "EasyQ",
-  "description": "安静提问，轻松回答。",
+  "description": "EasyQ：记录想法与生活，也放进一些好用的小工具。",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

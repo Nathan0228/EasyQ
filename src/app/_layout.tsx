@@ -5,6 +5,7 @@ import { StatusBar } from "expo-status-bar";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AppProvider, useApp } from "@/context/app-context";
+import { BlogSessionProvider } from "@/context/blog-session";
 
 function Navigation() {
   const { theme, colors } = useApp();
@@ -35,7 +36,7 @@ export default function RootLayout() {
   return (
     <SafeAreaProvider>
       <AppProvider>
-        <Navigation />
+        <BlogSessionProvider><Navigation /></BlogSessionProvider>
       </AppProvider>
     </SafeAreaProvider>
   );

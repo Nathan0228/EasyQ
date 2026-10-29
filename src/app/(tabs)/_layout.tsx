@@ -23,11 +23,19 @@ export default function MainTabsLayout() {
       minimizeBehavior="never"
     >
       <NativeTabs.Trigger name="index" contentStyle={{ backgroundColor: colors.background }}>
-        <NativeTabs.Trigger.Icon sf={{ default: "square.and.pencil", selected: "square.and.pencil" }} />
+        <NativeTabs.Trigger.Icon sf={{ default: "house", selected: "house.fill" }} />
+        <NativeTabs.Trigger.Label>{language === "zh" ? "首页" : "Home"}</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="blog" contentStyle={{ backgroundColor: colors.background }}>
+        <NativeTabs.Trigger.Icon sf={{ default: "book", selected: "book.fill" }} />
+        <NativeTabs.Trigger.Label>{language === "zh" ? "博客" : "Blog"}</NativeTabs.Trigger.Label>
+      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="ask" contentStyle={{ backgroundColor: colors.background }}>
+        <NativeTabs.Trigger.Icon sf={{ default: "bubble.left", selected: "bubble.left.fill" }} />
         <NativeTabs.Trigger.Label>{t.tabAsk}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="history" contentStyle={{ backgroundColor: colors.background }}>
-        <NativeTabs.Trigger.Icon sf={{ default: "clock.arrow.circlepath", selected: "clock.arrow.circlepath" }} />
+        <NativeTabs.Trigger.Icon sf={{ default: "clock", selected: "clock.fill" }} />
         <NativeTabs.Trigger.Label>{t.history}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>

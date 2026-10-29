@@ -43,3 +43,10 @@ example
 # generated native folders
 /ios
 /android
+
+# Go build output
+server/
+server/easyq-api
+server/server
+server/*.exe
+server/*.test

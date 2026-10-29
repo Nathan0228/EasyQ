@@ -33,7 +33,7 @@ function HistoryTop({ onLock }: { onLock?: () => void }) {
           accessibilityRole="button"
           accessibilityLabel={t.lock}
           onPress={onLock}
-          className="h-10 w-10 items-center justify-center rounded-full"
+          className="ui-pressable h-10 w-10 items-center justify-center rounded-full active:opacity-80"
           style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
         >
           <AppIcon name="lock" color={colors.text} size={18} />
@@ -157,15 +157,13 @@ export default function History() {
             <AppIcon name="lock" color={colors.accent} size={21} />
           </View>
           <AppText className="mb-2 text-[22px] font-bold">{t.lockTitle}</AppText>
-          <AppText className="mb-6 text-[14px] leading-[22px]" style={{ color: colors.secondary }}>{t.lockDescription}</AppText>
-          {passwordConfigured ? (
+          <AppText className="mb-6 text-[14px] leading-[22px]" style={{ color: colors.secondary }}>{passwordConfigured ? t.lockDescription : t.historySetupRequired}</AppText>
+          {passwordConfigured && (
             <View className="w-full gap-3">
               <AppInput value={password} onChangeText={(value) => { setPassword(value); setError(""); }} placeholder={t.passwordPlaceholder} secureTextEntry autoCapitalize="none" onSubmitEditing={unlock} />
               {Boolean(error) && <AppText className="text-sm" style={{ color: colors.danger }}>{error}</AppText>}
               <AppButton label={t.unlock} onPress={unlock} />
             </View>
-          ) : (
-            <View className="w-full"><AppButton label={t.returnHome} onPress={() => router.replace("/")} /></View>
           )}
         </Card>
       </Screen>

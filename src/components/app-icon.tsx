@@ -1,15 +1,17 @@
 import Svg, { Circle, Path, Rect } from "react-native-svg";
 
-type IconName = "arrow" | "lock" | "moon" | "sun" | "history" | "check" | "message" | "download" | "upload" | "trash" | "close";
+type IconName = "home" | "book" | "arrow" | "lock" | "moon" | "sun" | "history" | "check" | "message" | "download" | "upload" | "trash" | "close";
 
 export function AppIcon({ name, size = 20, color = "currentColor" }: {
   name: IconName;
   size?: number;
   color?: string;
 }) {
-  const common = { stroke: color, strokeWidth: 1.8, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, fill: "none" };
+  const common = { stroke: color, strokeWidth: 48 / size, strokeLinecap: "round" as const, strokeLinejoin: "round" as const, fill: "none" };
   return (
     <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+      {name === "home" && <Path d="m3 10 9-7 9 7M5 9v12h5v-7h4v7h5V9" {...common} />}
+      {name === "book" && <Path d="M12 5v16M12 5C9 3 5 3 2 4v15c4-1 7-1 10 2 3-3 6-3 10-2V4c-3-1-7-1-10 1Z" {...common} />}
       {name === "arrow" && <Path d="M19 12H5m7 7-7-7 7-7" {...common} />}
       {name === "lock" && <><Rect x="5" y="10" width="14" height="11" rx="2.5" {...common} /><Path d="M8 10V7a4 4 0 0 1 8 0v3" {...common} /></>}
       {name === "moon" && <Path d="M20.3 15.8A8.5 8.5 0 0 1 8.2 3.7 8.5 8.5 0 1 0 20.3 15.8Z" {...common} />}

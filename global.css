@@ -12,8 +12,36 @@ body {
   margin: 0;
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  .page-enter { animation: page-arrive 280ms ease-out; }
+  @keyframes page-arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+}
+@media (hover: hover) {
+  .feature-card:hover, .editorial-row:hover { opacity: 0.86; }
+}
+
 .web-bottom-tabs {
   display: none;
+}
+
+.ui-pressable:not(:disabled) {
+  transition-property: opacity;
+  transition-duration: 150ms;
+  transition-timing-function: ease-out;
+}
+
+.ui-pressable:not(:disabled):active {
+  opacity: 0.8;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .ui-pressable:not(:disabled) {
+    transition-property: opacity, transform;
+  }
+
+  .ui-pressable:not(:disabled):active {
+    transform: scale(0.96);
+  }
 }
 
 @media (max-width: 767px) {
@@ -27,7 +55,7 @@ body {
     min-height: 68px;
     padding: 5px;
     border: 1px solid rgba(255, 255, 255, 0.72);
-    border-radius: 28px;
+    border-radius: 29px;
     background: rgba(255, 254, 250, 0.7);
     box-shadow: 0 10px 32px rgba(31, 46, 35, 0.17);
     -webkit-backdrop-filter: blur(24px) saturate(1.6);
@@ -40,8 +68,46 @@ body {
     box-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
   }
 
+  .web-bottom-tabs a {
+    -webkit-tap-highlight-color: transparent;
+    transition-property: opacity;
+    transition-duration: 150ms;
+    transition-timing-function: ease-out;
+  }
+
+  .web-bottom-tabs a:focus-visible {
+    outline: 2px solid #315f4e;
+    outline-offset: -2px;
+  }
+
+  .web-bottom-tabs--dark a:focus-visible {
+    outline-color: #a7c5b0;
+  }
+
   body:has(input:focus, textarea:focus) .web-bottom-tabs {
     display: none;
+  }
+}
+
+@media (max-width: 767px) and (hover: hover) {
+  .web-bottom-tabs a:hover {
+    opacity: 0.82;
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: no-preference) {
+  .web-bottom-tabs a {
+    transition-property: opacity, transform;
+  }
+
+  .web-bottom-tabs a:active {
+    transform: scale(0.96);
+  }
+}
+
+@media (max-width: 767px) and (prefers-reduced-motion: reduce) {
+  .web-bottom-tabs a:active {
+    opacity: 0.82;
   }
 }
 

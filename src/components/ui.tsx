@@ -1,3 +1,4 @@
+import { Link } from "expo-router";
 import { Image, Platform, Pressable, ScrollView, TextInput, useWindowDimensions, View, type TextInputProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -6,7 +7,7 @@ import { AppText } from "@/components/app-text";
 import { useApp } from "@/context/app-context";
 import { copy } from "@/i18n/copy";
 
-export function Screen({ children, inNativeTab = false }: { children: React.ReactNode; inNativeTab?: boolean }) {
+export function Screen({ children, inNativeTab = false, maxWidth = 650 }: { children: React.ReactNode; inNativeTab?: boolean; maxWidth?: number }) {
   const { colors } = useApp();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
@@ -23,14 +24,14 @@ export function Screen({ children, inNativeTab = false }: { children: React.Reac
         paddingBottom: compactWebTab ? insets.bottom + 128 : inNativeTab && Platform.OS === "ios" ? 36 : insets.bottom + 36,
       }}
     >
-      <View className="w-full px-5 sm:px-7" style={{ maxWidth: 650 }}>
+      <View className="page-enter w-full px-5 sm:px-7" style={{ maxWidth }}>
         {children}
       </View>
     </ScrollView>
   );
 }
 
-export function BrandHeader({ right }: { right?: React.ReactNode }) {
+export function BrandHeader({ right, showPreferences = true, subtitle }: { right?: React.ReactNode; showPreferences?: boolean; subtitle?: string }) {
   const { colors, language, theme, setLanguage, setTheme } = useApp();
   const t = copy[language];
   return (
@@ -38,31 +39,33 @@ export function BrandHeader({ right }: { right?: React.ReactNode }) {
       <View className="flex-row items-center gap-2.5">
         <Image source={require("../../assets/images/easyq-logo-earth.png")} style={{ width: 44, height: 44, borderRadius: 16 }} />
         <View>
-          <AppText className="text-xl font-bold tracking-tight">EasyQ<AppText style={{ color: colors.accent }}>.</AppText></AppText>
-          <AppText className="text-[11px]" style={{ color: colors.secondary }}>{t.localOnly}</AppText>
+          {showPreferences ? <Link href="/" accessibilityLabel="EasyQ 首页"><AppText className="text-xl font-bold tracking-tight">EasyQ.</AppText></Link> : <AppText className="text-xl font-bold tracking-tight">EasyQ.</AppText>}
+          <AppText className="text-[11px]" style={{ color: colors.secondary }}>{subtitle ?? t.localOnly}</AppText>
         </View>
       </View>
-      <View className="flex-row items-center gap-2">
-        {right}
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={theme === "light" ? t.themeDark : t.themeLight}
-          onPress={() => void setTheme(theme === "light" ? "dark" : "light")}
-          className="h-10 w-10 items-center justify-center rounded-full"
-          style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
-        >
-          <AppIcon name={theme === "light" ? "moon" : "sun"} color={colors.text} size={19} />
-        </Pressable>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={language === "zh" ? "Switch to English" : "切换为中文"}
-          onPress={() => void setLanguage(language === "zh" ? "en" : "zh")}
-          className="h-10 min-w-10 items-center justify-center rounded-full px-2"
-          style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
-        >
-          <AppText className="text-xs font-bold">{t.language}</AppText>
-        </Pressable>
-      </View>
+      {showPreferences && (
+        <View className="flex-row items-center gap-2">
+          {right}
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={theme === "light" ? t.themeDark : t.themeLight}
+            onPress={() => void setTheme(theme === "light" ? "dark" : "light")}
+            className="ui-pressable h-10 w-10 items-center justify-center rounded-full active:opacity-80"
+            style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
+          >
+            <AppIcon name={theme === "light" ? "moon" : "sun"} color={colors.text} size={19} />
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={language === "zh" ? "Switch to English" : "切换为中文"}
+            onPress={() => void setLanguage(language === "zh" ? "en" : "zh")}
+            className="ui-pressable h-10 min-w-10 items-center justify-center rounded-full px-2 active:opacity-80"
+            style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
+          >
+            <AppText className="text-xs font-bold">{t.language}</AppText>
+          </Pressable>
+        </View>
+      )}
     </View>
   );
 }
@@ -91,8 +94,8 @@ export function AppButton({ label, onPress, variant = "primary", disabled = fals
       accessibilityRole="button"
       disabled={disabled}
       onPress={onPress}
-      className="min-h-[54px] flex-row items-center justify-center gap-2 rounded-2xl px-5 active:opacity-80"
-      style={{ backgroundColor, opacity: disabled ? 0.55 : 1 }}
+      className="ui-pressable min-h-[54px] flex-row items-center justify-center gap-2 rounded-2xl px-5 active:opacity-80"
+      style={{ backgroundColor, opacity: disabled ? 0.55 : undefined }}
     >
       {icon}
       <AppText className="text-[15px] font-semibold" style={{ color: foregroundColor }}>{label}</AppText>

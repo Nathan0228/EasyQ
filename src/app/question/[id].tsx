@@ -51,7 +51,7 @@ export default function QuestionScreen() {
 
   return (
     <Screen>
-      <BrandHeader />
+      <BrandHeader showPreferences={Boolean(item.answer)} />
       {item.answer ? (
         <>
           <View className="mb-4 flex-row items-center gap-2 self-start rounded-full px-4 py-2" style={{ backgroundColor: colors.surfaceSoft }}>
@@ -69,7 +69,7 @@ export default function QuestionScreen() {
               {item.mode === "binary" ? (item.answer.value === "yes" ? t.yes : t.no) : item.answer.value}
             </AppText>
           </Card>
-          <AppButton label={t.closeResult} onPress={() => router.replace("/")} />
+          <AppButton label={t.closeResult} onPress={() => router.replace("/ask")} />
         </>
       ) : (
         <>
@@ -89,8 +89,8 @@ export default function QuestionScreen() {
                   accessibilityRole="button"
                   disabled={busy}
                   onPress={() => void submit("yes")}
-                  className="min-h-[74px] flex-row items-center justify-between rounded-2xl px-6 active:opacity-80"
-                  style={{ backgroundColor: colors.surfaceSoft, opacity: busy ? 0.55 : 1 }}
+                  className="ui-pressable min-h-[74px] flex-row items-center justify-between rounded-2xl px-6 active:opacity-80"
+                  style={{ backgroundColor: colors.surfaceSoft, opacity: busy ? 0.55 : undefined }}
                 >
                   <AppText className="text-[22px] font-bold" style={{ color: colors.accent }}>{t.yes}</AppText>
                   <AppIcon name="check" color={colors.accent} size={24} />
@@ -99,8 +99,8 @@ export default function QuestionScreen() {
                   accessibilityRole="button"
                   disabled={busy}
                   onPress={() => void submit("no")}
-                  className="min-h-[74px] flex-row items-center justify-between rounded-2xl px-6 active:opacity-80"
-                  style={{ backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, opacity: busy ? 0.55 : 1 }}
+                  className="ui-pressable min-h-[74px] flex-row items-center justify-between rounded-2xl px-6 active:opacity-80"
+                  style={{ backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, opacity: busy ? 0.55 : undefined }}
                 >
                   <AppText className="text-[22px] font-bold">{t.no}</AppText>
                   <AppIcon name="close" color={colors.secondary} size={22} />
