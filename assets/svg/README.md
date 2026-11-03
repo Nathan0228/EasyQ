@@ -27,7 +27,11 @@ import GithubIcon from "@/assets/svg/social/github.svg";
 <GithubIcon width={24} height={24} color={colors.text} />
 ```
 
-Metro 使用 `react-native-svg-transformer/expo` 将文件转换为 `react-native-svg` 组件，支持 Web、iOS 和 Android，并保留 NativeWind 配置。首次切换此配置需重启开发服务：`npx expo start --clear`。
+Metro 使用 `scripts/svg-transformer.cjs` 将文件转换为 `react-native-svg` 组件，支持 Web、iOS 和 Android，并保留 NativeWind 配置。适配器复用 `react-native-svg-transformer` 的 SVG 转换逻辑，通过 Expo 自身的模块解析上下文加载配套 Babel 编译器，兼容 npm 将 `@expo/metro-config` 安装到 Expo 内部的依赖布局。首次切换此配置需重启开发服务：`npx expo start --clear`。
+
+Cloudflare 构建若在 `react-native-svg-transformer/index.js` 报 `Cannot read properties of null (reading 'transform')`，表示旧入口未能解析 Expo 编译器。提交时必须同时包含 `metro.config.js` 与 `scripts/svg-transformer.cjs`；无需修改 `node_modules`，构建命令仍为 `npm run build:web`。
+
+运行 `npm run test:svg` 可检查 Web 和 iOS 的 TypeScript 编译及本地 SVG 转换，运行 `npm run build:web -- --clear` 可强制清缓存验证完整网页构建。
 
 如果 `AppIcon` 报错 `Element type is invalid ... got: object`，请先停止原来的 Expo 服务（终端按 `Ctrl+C`），再执行上述命令，并刷新浏览器。旧服务可能仍将 `.svg` 导出为含 `uri` 的图片资源对象，而不是 React 组件；修改 `metro.config.js` 后仅热刷新页面不会加载新配置。不要保留旧服务并在另一个端口启动后继续访问旧端口。
 
