@@ -1,4 +1,5 @@
-import type { BlogPost, PostInput, PostPage } from "@/types/blog";
+import type { ArticleReading, BlogPost, PostInput, PostPage } from "@/types/blog";
+import type { ExternalTool, ToolInput } from "@/types/tool";
 
 const baseURL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 export const apiConfigured = Boolean(baseURL);
@@ -28,11 +29,15 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
 }
 
 export const blogAPI = {
-  list: (offset = 0) => request<PostPage>(`/api/posts?offset=${offset}`),
+  list: (offset = 0, limit = 12) => request<PostPage>(`/api/posts?offset=${offset}&limit=${limit}`),
   article: (slug: string) => request<BlogPost>(`/api/posts/${encodeURIComponent(slug)}`),
+  reading: (slug: string) => request<ArticleReading>(`/api/posts/${encodeURIComponent(slug)}/reading`),
   login: (username: string, password: string) => request<{ token: string; expiresAt: string }>("/api/admin/login", { method: "POST", body: JSON.stringify({ username, password }) }),
   logout: (token: string) => request<void>("/api/admin/logout", { method: "POST" }, token),
   drafts: (token: string, offset = 0) => request<PostPage>(`/api/admin/posts?offset=${offset}`, {}, token),
   draft: (token: string, id: string) => request<BlogPost>(`/api/admin/posts/${encodeURIComponent(id)}`, {}, token),
   save: (token: string, data: PostInput, id?: string) => request<BlogPost>(id ? `/api/admin/posts/${encodeURIComponent(id)}` : "/api/admin/posts", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token),
+  tools: () => request<{ tools: ExternalTool[] }>("/api/tools"),
+  saveTool: (token: string, data: ToolInput, id?: string) => request<ExternalTool>(id ? `/api/admin/tools/${encodeURIComponent(id)}` : "/api/admin/tools", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token),
+  deleteTool: (token: string, tool: ExternalTool) => request<void>(`/api/admin/tools/${encodeURIComponent(tool.id)}?version=${tool.version}`, { method: "DELETE" }, token),
 };

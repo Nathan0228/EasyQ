@@ -13,3 +13,4 @@ export type BlogPost = {
 };
 export type PostInput = Pick<BlogPost, "title" | "slug" | "excerpt" | "category" | "status" | "version"> & { content: string };
 export type PostPage = { posts: BlogPost[]; hasMore: boolean };
+export type ArticleReading = { previous: BlogPost | null; next: BlogPost | null; recommended: BlogPost[] };

@@ -1,0 +1,13 @@
+# Serve the SPA without changing the requested URL (including article slugs).
+# Match page routes only: JS, CSS, images and API responses must stay untouched.
+/blog /index.html 200
+/blog/* /index.html 200
+/tools /index.html 200
+/tools/* /index.html 200
+/admin /index.html 200
+/admin/* /index.html 200
+/ask /index.html 200
+/ask/* /index.html 200
+/history /index.html 200
+/history/* /index.html 200
+/question/* /index.html 200

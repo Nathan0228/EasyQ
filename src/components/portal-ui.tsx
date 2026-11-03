@@ -12,7 +12,7 @@ export function PortalScreen({ children, tabs = false }: { children: React.React
     {children}
     <View className="mt-16 flex-row flex-wrap items-center justify-between gap-3 border-t pt-6" style={{ borderColor: colors.border }}>
       <AppText className="text-xs" style={{ color: colors.secondary }}>EasyQ · {new Date().getFullYear()}</AppText>
-      <View className="flex-row gap-5"><TextLink href="/" label={language === "zh" ? "功能入口" : "Explore"} /><TextLink href="/admin" label={language === "zh" ? "写作台" : "Studio"} /></View>
+      <View className="flex-row flex-wrap gap-5"><TextLink href="/" label={language === "zh" ? "首页" : "Home"} /><TextLink href="/tools" label={language === "zh" ? "工具" : "Tools"} /><TextLink href="/admin" label={language === "zh" ? "管理" : "Admin"} /></View>
     </View>
   </Screen>;
 }

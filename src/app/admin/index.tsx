@@ -3,7 +3,7 @@ import { useCallback, useState } from "react";
 import { View } from "react-native";
 import { AdminLogin } from "@/components/admin-login";
 import { AppText } from "@/components/app-text";
-import { Eyebrow, Loading, Notice, PortalScreen, PostRow } from "@/components/portal-ui";
+import { Eyebrow, Loading, Notice, PortalScreen, PostRow, TextLink } from "@/components/portal-ui";
 import { AppButton } from "@/components/ui";
 import { useBlogSession } from "@/context/blog-session";
 import { ApiError, blogAPI } from "@/lib/blog-api";
@@ -31,6 +31,7 @@ export default function Studio() {
   if (!token) return <AdminLogin />;
   return <PortalScreen>
     <Eyebrow>WRITING STUDIO</Eyebrow>
+    <TextLink href="/admin/tools" label="管理工具入口 →" />
     <AppText accessibilityRole="header" className="mb-4 text-[34px] font-semibold">把想法写下来。</AppText>
     <AppText className="mb-8 text-sm leading-6">草稿仅你可见。发布后的文章会出现在公开博客中。</AppText>
     <View className="mb-5 gap-3 sm:flex-row"><View className="flex-1"><AppButton label="写一篇新文章" onPress={() => router.push("/admin/editor")} /></View><AppButton label="退出登录" variant="secondary" onPress={() => void logout()} /></View>

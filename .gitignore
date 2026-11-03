@@ -8,6 +8,7 @@ node_modules/
 dist/
 dist-all/
 web-build/
+.wrangler/
 expo-env.d.ts
 
 # Native

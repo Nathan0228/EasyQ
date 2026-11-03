@@ -31,20 +31,33 @@ export function Screen({ children, inNativeTab = false, maxWidth = 650 }: { chil
   );
 }
 
-export function BrandHeader({ right, showPreferences = true, subtitle }: { right?: React.ReactNode; showPreferences?: boolean; subtitle?: string }) {
+type BrandHeaderProps = { right?: React.ReactNode; showPreferences?: boolean; subtitle?: string };
+
+// Web keeps the shared brand/preferences in SiteFrame. Page-specific actions
+// (history access, locking history) remain in the page toolbar.
+export function BrandHeader(props: BrandHeaderProps) {
+  if (Platform.OS === "web") {
+    return props.showPreferences !== false && props.right
+      ? <View className="mb-6 flex-row justify-end">{props.right}</View>
+      : null;
+  }
+  return <BrandHeaderContent {...props} />;
+}
+
+export function BrandHeaderContent({ right, showPreferences = true, subtitle, compact = false }: BrandHeaderProps & { compact?: boolean }) {
   const { colors, language, theme, setLanguage, setTheme } = useApp();
   const t = copy[language];
   return (
-    <View className="mb-8 flex-row items-center justify-between">
-      <View className="flex-row items-center gap-2.5">
+    <View className={`${compact ? "" : "mb-8 "}flex-row items-center justify-between gap-3`}>
+      <View className="min-w-0 flex-1 flex-row items-center gap-2.5">
         <Image source={require("../../assets/images/easyq-logo-earth.png")} style={{ width: 44, height: 44, borderRadius: 16 }} />
-        <View>
+        <View className="min-w-0 flex-1">
           {showPreferences ? <Link href="/" accessibilityLabel="EasyQ 首页"><AppText className="text-xl font-bold tracking-tight">EasyQ.</AppText></Link> : <AppText className="text-xl font-bold tracking-tight">EasyQ.</AppText>}
-          <AppText className="text-[11px]" style={{ color: colors.secondary }}>{subtitle ?? t.localOnly}</AppText>
+          <AppText numberOfLines={1} className="text-[11px]" style={{ color: colors.secondary }}>{subtitle ?? t.localOnly}</AppText>
         </View>
       </View>
       {showPreferences && (
-        <View className="flex-row items-center gap-2">
+        <View className="shrink-0 flex-row items-center gap-2">
           {right}
           <Pressable
             accessibilityRole="button"

@@ -6,6 +6,7 @@ import { SafeAreaProvider } from "react-native-safe-area-context";
 
 import { AppProvider, useApp } from "@/context/app-context";
 import { BlogSessionProvider } from "@/context/blog-session";
+import { SiteFrame } from "@/components/site-frame";
 
 function Navigation() {
   const { theme, colors } = useApp();
@@ -24,10 +25,12 @@ function Navigation() {
   return (
     <ThemeProvider value={navigationTheme}>
       <StatusBar style={theme === "dark" ? "light" : "dark"} />
-      <Stack screenOptions={{ headerShown: false, animation: "fade", contentStyle: { backgroundColor: colors.background } }}>
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="question/[id]" />
-      </Stack>
+      <SiteFrame>
+        <Stack screenOptions={{ headerShown: false, animation: "fade", contentStyle: { backgroundColor: colors.background } }}>
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="question/[id]" />
+        </Stack>
+      </SiteFrame>
     </ThemeProvider>
   );
 }

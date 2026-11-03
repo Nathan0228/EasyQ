@@ -3,11 +3,9 @@ import { NativeTabs } from "expo-router/native-tabs";
 import { Platform } from "react-native";
 
 import { useApp } from "@/context/app-context";
-import { copy } from "@/i18n/copy";
 
 export default function MainTabsLayout() {
   const { colors, language, theme } = useApp();
-  const t = copy[language];
 
   if (Platform.OS !== "ios") {
     return <Stack screenOptions={{ headerShown: false, animation: "fade" }} />;
@@ -30,13 +28,9 @@ export default function MainTabsLayout() {
         <NativeTabs.Trigger.Icon sf={{ default: "book", selected: "book.fill" }} />
         <NativeTabs.Trigger.Label>{language === "zh" ? "博客" : "Blog"}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="ask" contentStyle={{ backgroundColor: colors.background }}>
-        <NativeTabs.Trigger.Icon sf={{ default: "bubble.left", selected: "bubble.left.fill" }} />
-        <NativeTabs.Trigger.Label>{t.tabAsk}</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="history" contentStyle={{ backgroundColor: colors.background }}>
-        <NativeTabs.Trigger.Icon sf={{ default: "clock", selected: "clock.fill" }} />
-        <NativeTabs.Trigger.Label>{t.history}</NativeTabs.Trigger.Label>
+      <NativeTabs.Trigger name="tools" contentStyle={{ backgroundColor: colors.background }}>
+        <NativeTabs.Trigger.Icon sf={{ default: "square.grid.2x2", selected: "square.grid.2x2.fill" }} />
+        <NativeTabs.Trigger.Label>{language === "zh" ? "工具" : "Tools"}</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
