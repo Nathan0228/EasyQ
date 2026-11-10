@@ -26,7 +26,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     if (options.body != null && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
     if (token) headers.set("Authorization", `Bearer ${token}`);
     const response = await fetch(`${baseURL}${path}`, {
-      ...options, signal: controller.signal,
+      ...options, signal: controller.signal, credentials: "omit",
       headers,
     });
     if (response.status === 204) return undefined as T;
@@ -36,6 +36,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
     return data;
   } catch (error) {
     if (error instanceof ApiError) throw error;
+    if (controller.signal.aborted) throw new ApiError("连接博客服务超时，请检查网络后重试。", 0);
     throw new ApiError("无法连接博客服务，请检查网络后重试。", 0);
   } finally { clearTimeout(timer); }
 }
