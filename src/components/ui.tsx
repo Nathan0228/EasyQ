@@ -1,5 +1,6 @@
 import { Link } from "expo-router";
-import { Image, Platform, Pressable, ScrollView, TextInput, useWindowDimensions, View, type TextInputProps } from "react-native";
+import { useRef, useState, type ComponentRef } from "react";
+import { AccessibilityInfo, Image, Platform, Pressable, ScrollView, TextInput, useWindowDimensions, View, type TextInputProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { AppIcon, type IconName } from "@/components/app-icon";
@@ -7,21 +8,30 @@ import { AppText } from "@/components/app-text";
 import { useApp } from "@/context/app-context";
 import { copy } from "@/i18n/copy";
 
-export function Screen({ children, inNativeTab = false, maxWidth = 650 }: { children: React.ReactNode; inNativeTab?: boolean; maxWidth?: number }) {
-  const { colors } = useApp();
+export function Screen({ children, inNativeTab = false, maxWidth = 650, backToTop = false }: { children: React.ReactNode; inNativeTab?: boolean; maxWidth?: number; backToTop?: boolean }) {
+  const { colors, language, theme } = useApp();
   const insets = useSafeAreaInsets();
   const { width } = useWindowDimensions();
+  const scrollRef = useRef<ComponentRef<typeof ScrollView>>(null);
+  const [showTop, setShowTop] = useState(false);
   const compactWebTab = inNativeTab && Platform.OS === "web" && width < 768;
-  return (
+  async function scrollToTop() {
+    const reduceMotion = await AccessibilityInfo.isReduceMotionEnabled().catch(() => true);
+    scrollRef.current?.scrollTo({ y: 0, animated: !reduceMotion });
+  }
+  const content = (
     <ScrollView
+      ref={scrollRef}
       className="flex-1"
       style={{ backgroundColor: colors.background }}
       keyboardShouldPersistTaps="handled"
+      onScroll={backToTop ? event => setShowTop(event.nativeEvent.contentOffset.y > 320) : undefined}
+      scrollEventThrottle={64}
       contentContainerStyle={{
         flexGrow: 1,
         alignItems: "center",
         paddingTop: inNativeTab && Platform.OS === "ios" ? 14 : Platform.OS === "web" ? 26 : insets.top + 14,
-        paddingBottom: compactWebTab ? insets.bottom + 128 : inNativeTab && Platform.OS === "ios" ? 36 : insets.bottom + 36,
+        paddingBottom: (compactWebTab ? insets.bottom + 128 : inNativeTab && Platform.OS === "ios" ? 36 : insets.bottom + 36) + (backToTop ? 44 : 0),
       }}
     >
       <View className="page-enter w-full px-5 sm:px-7" style={{ maxWidth }}>
@@ -29,6 +39,19 @@ export function Screen({ children, inNativeTab = false, maxWidth = 650 }: { chil
       </View>
     </ScrollView>
   );
+  if (!backToTop) return content;
+  return <View className="min-h-0 flex-1">
+    {content}
+    {showTop && <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={language === "zh" ? "返回文章顶部" : "Back to article top"}
+      onPress={() => void scrollToTop()}
+      className={`glass-button glass-button--${theme} ui-pressable absolute h-11 w-11 items-center justify-center rounded-xl border`}
+      style={{ right: Math.max(20, (width - maxWidth) / 2 + 20), bottom: insets.bottom + (compactWebTab ? 100 : 20), ...(Platform.OS === "web" ? {} : { backgroundColor: colors.surface, borderColor: colors.border }) }}
+    >
+      <View pointerEvents="none" style={{ transform: [{ rotate: "90deg" }] }}><AppIcon name="arrow" size={20} color={colors.text} /></View>
+    </Pressable>}
+  </View>;
 }
 
 type BrandHeaderProps = { right?: React.ReactNode; showPreferences?: boolean; subtitle?: string };

@@ -33,14 +33,19 @@ function ArticleContent({ slug }: { slug: string }) {
     } finally { if (id === requestID.current) setBusy(false); }
   }, [slug]);
   useFocusEffect(useCallback(() => { void load(); return () => { requestID.current++; }; }, [load]));
-  return <PortalScreen>
+  return <PortalScreen backToTop={Boolean(post)}>
     <TextLink href="/blog" label={language === "zh" ? "← 所有文章" : "← All stories"} />
     {busy && <Loading />}
     {Boolean(error) && <Notice message={error} retry={() => void load()} />}
     {post && <View className="pt-7">
       <Eyebrow>{post.category || "JOURNAL"}</Eyebrow>
       <AppText accessibilityRole="header" className="text-[34px] font-semibold leading-[46px]">{post.title}</AppText>
-      <AppText className="mb-9 mt-5 text-xs leading-6" style={{ color: colors.secondary }}>{siteAuthor}  /  {new Date(post.publishedAt || post.createdAt).toLocaleDateString()}  /  {Math.max(1, Math.ceil((post.content?.length || 0) / 500))} {language === "zh" ? "分钟阅读" : "min read"}</AppText>
+      <View className="mb-9 mt-5">
+        <AppText className="text-xs leading-6" style={{ color: colors.secondary }}>{siteAuthor}  /  {new Date(post.publishedAt || post.createdAt).toLocaleDateString(language === "zh" ? "zh-CN" : "en-US")}  /  {Math.max(1, Math.ceil((post.content?.length || 0) / 500))} {language === "zh" ? "分钟阅读" : "min read"}</AppText>
+        {Number.isFinite(Date.parse(post.updatedAt)) && <AppText className="mt-1 text-xs leading-6" style={{ color: colors.secondary }}>
+          {language === "zh" ? "更新于 " : "Updated "}{new Date(post.updatedAt).toLocaleString(language === "zh" ? "zh-CN" : "en-US", { year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hour12: false })}
+        </AppText>}
+      </View>
       {Boolean(post.excerpt) && <AppText className="mb-8 border-l-2 pl-5 text-base leading-8" style={{ borderColor: colors.accent, color: colors.secondary }}>{post.excerpt}</AppText>}
       <Markdown content={post.content || ""} />
       <AppText className="mt-10 text-xs tracking-[3px]" style={{ color: colors.secondary }}>— END —</AppText>

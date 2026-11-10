@@ -6,9 +6,9 @@ import { useApp } from "@/context/app-context";
 import type { BlogPost } from "@/types/blog";
 import { prefetchArticle } from "@/lib/blog-api";
 
-export function PortalScreen({ children, tabs = false }: { children: React.ReactNode; tabs?: boolean }) {
+export function PortalScreen({ children, tabs = false, backToTop = false }: { children: React.ReactNode; tabs?: boolean; backToTop?: boolean }) {
   const { colors, language } = useApp();
-  return <Screen inNativeTab={tabs} maxWidth={780}>
+  return <Screen inNativeTab={tabs} maxWidth={780} backToTop={backToTop}>
     <BrandHeader subtitle={language === "zh" ? "一个人的数字花园" : "A personal digital garden"} />
     {children}
     <View className="mt-16 flex-row flex-wrap items-center justify-between gap-3 border-t pt-6" style={{ borderColor: colors.border }}>
