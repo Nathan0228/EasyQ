@@ -1,4 +1,5 @@
 {
+  // Default config for `wrangler deploy`; keep deep links on the SPA entry page.
   "name": "easyq",
   "compatibility_date": "2026-11-03",
   "assets": {

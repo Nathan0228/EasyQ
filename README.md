@@ -11,7 +11,7 @@ EasyQ 是一个个人门户网站，首页介绍网站特点并展示最新三�
 - `/admin/tools`：使用同一管理员登录，新增、编辑或删除站外入口的名称、介绍、网址和图标。保存即公开，删除需二次确认。
 - `/ask`：原有本地问答功能；`/history`：密码保护的本地历史。
 
-博客后端使用 Go + MariaDB，部署到现有 VPS Docker Compose 网络，详见 [部署说明](server/DEPLOY.md)。前端继续使用 Cloudflare Pages。复制根目录 `.env.example` 中的公开 API 配置到构建环境即可连接服务。
+博客后端使用 Go + MariaDB，部署到现有 VPS Docker Compose 网络，详见 [部署说明](server/DEPLOY.md)。前端使用 Cloudflare 静态资源托管，当前 Workers 项目采用根目录的 `wrangler.jsonc`。复制根目录 `.env.example` 中的公开 API 配置到构建环境即可连接服务。
 
 项目使用 Expo Router、React Native 和 NativeWind，优先适配手机，同时支持 Android、iOS 与网页。问答功能仍独立保存在设备上，无需账号；博客公开阅读无需登录，写作发布由独立后端验证身份。
 
@@ -53,7 +53,7 @@ npm run build:web
 
 数据不会在设备之间自动同步。清除浏览器网站数据或卸载应用可能丢失记录；请定期从历史页导出备份。备份 JSON 本身也包含明文问题和答案，请妥善保存。
 
-## 部署到 Cloudflare Pages
+## 部署到 Cloudflare
 
 项目使用 Expo 单页网页导出，以便 `/question/...` 等客户端路由在 Cloudflare Pages 上工作。构建产物在 `dist/`。
 
@@ -64,9 +64,13 @@ Cloudflare Pages 运行的是网页版本，即使在 iPhone Safari 中打开也
 3. 如果要统一使用部署密码，在 Pages 的构建环境变量中设置 `EXPO_PUBLIC_HISTORY_PASSWORD`，然后重新部署。这个值会出现在客户端代码中。
 4. 部署完成后，在 iPhone Safari 打开 HTTPS 地址，使用分享菜单里的「添加到主屏幕」。
 
-`public/_redirects` 会随构建复制到 `dist/_redirects`，将 `/blog`、`/blog/*`、`/admin` 等页面请求以 **200 内部重写**交给 `index.html`。浏览器地址保持不变，Expo Router 按原来的文章 slug 加载内容；不要把这些路径用 301/302 跳转到首页。规则只匹配页面，不会把 JavaScript、CSS 或图片返回成 HTML。
+Expo 的 `web.output: "single"` 只生成一个 `index.html`，`/blog` 和 `/blog/文章-slug` 由客户端路由处理。刷新或分享链接时，Cloudflare 必须返回入口页，保持请求 URL 不变，之后由 Expo Router 加载对应文章。将路径用 301/302 跳转到首页会丢失文章地址。
 
-如果 Cloudflare 中创建的是 **Workers 静态资源项目**，请使用根目录的 `wrangler.workers.jsonc`（与 Pages 配置分开，避免两种部署模式混用）：构建命令仍为 `npm run build:web`，部署命令为 `npx wrangler deploy --config wrangler.workers.jsonc`。配置中的 `assets.not_found_handling` 启用 SPA 回退。已有 Worker 名称不是 `easyq` 时，先将配置中的 `name` 改为现有名称；保留现有自定义域名绑定。
+当前使用 `wrangler deploy` 部署的是 **Workers 静态资源项目**。根目录 `wrangler.jsonc` 是默认配置文件，其中 `assets.directory` 指向 `dist`，`assets.not_found_handling` 设置为 `single-page-application`。Cloudflare 中构建命令设为 `npm run build:web`，部署命令设为 `npx wrangler deploy --config wrangler.jsonc`（默认的 `npx wrangler deploy` 也会读取此文件）。原来的 `wrangler.workers.jsonc` 已重命名；若控制台部署命令还引用旧文件名，需要同步修改。配置不包含自定义构建步骤，不会在部署阶段重复构建。已有 Worker 名称不是 `easyq` 时，先改为现有名称；保留现有自定义域名绑定。
+
+不要重新添加指向 `/index.html` 的 `/*` 或 `/blog/*` 重写规则：Workers 的 HTML 规范化可能将它们判为循环，导致部署失败。原生 SPA 回退已覆盖 `/blog`、文章、工具、后台和问答详情路径，并正常提供实际存在的 JS、CSS、图片资源。
+
+如果实际创建的是 **Pages 项目**，使用上方 Pages 设置；没有顶层 `404.html` 时，Pages 默认提供 SPA 回退，无需 `_redirects`。相关说明：[Workers SPA](https://developers.cloudflare.com/workers/static-assets/routing/single-page-application/)、[Pages SPA](https://developers.cloudflare.com/pages/configuration/serving-pages/#single-page-application-spa-rendering)。
 
 修改后需要重新部署前端；只更新 VPS 的 Go 服务无法修复网页路径的 404。部署后在新标签页直接打开 `/blog` 和一篇已发布文章的 `/blog/实际-slug`，刷新后应仍显示对应页面，地址不变。草稿不能公开分享；后台刷新后仍需重新登录，这是当前会话仅保存在内存中的行为。本项目没有添加服务工作线程；添加到主屏幕不代表离线可用。
 

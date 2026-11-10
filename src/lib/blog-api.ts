@@ -13,9 +13,13 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 15000);
   try {
+    const headers = new Headers(options.headers);
+    headers.set("Accept", "application/json");
+    if (options.body != null && !headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+    if (token) headers.set("Authorization", `Bearer ${token}`);
     const response = await fetch(`${baseURL}${path}`, {
       ...options, signal: controller.signal,
-      headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}), ...options.headers },
+      headers,
     });
     if (response.status === 204) return undefined as T;
     const data = await response.json().catch(() => null);
@@ -37,7 +41,11 @@ export const blogAPI = {
   drafts: (token: string, offset = 0) => request<PostPage>(`/api/admin/posts?offset=${offset}`, {}, token),
   draft: (token: string, id: string) => request<BlogPost>(`/api/admin/posts/${encodeURIComponent(id)}`, {}, token),
   save: (token: string, data: PostInput, id?: string) => request<BlogPost>(id ? `/api/admin/posts/${encodeURIComponent(id)}` : "/api/admin/posts", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token),
-  tools: () => request<{ tools: ExternalTool[] }>("/api/tools"),
+  tools: async () => {
+    const data = await request<{ tools: ExternalTool[] }>("/api/tools");
+    if (!Array.isArray(data.tools)) throw new ApiError("工具接口返回格式不正确，请检查 API 域名是否指向 EasyQ 后端。", 502);
+    return data;
+  },
   saveTool: (token: string, data: ToolInput, id?: string) => request<ExternalTool>(id ? `/api/admin/tools/${encodeURIComponent(id)}` : "/api/admin/tools", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token),
   deleteTool: (token: string, tool: ExternalTool) => request<void>(`/api/admin/tools/${encodeURIComponent(tool.id)}?version=${tool.version}`, { method: "DELETE" }, token),
 };
