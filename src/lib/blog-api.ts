@@ -1,5 +1,13 @@
 import type { ArticleReading, BlogPost, PostInput, PostPage } from "@/types/blog";
 import type { ExternalTool, ToolInput } from "@/types/tool";
+import { createReadCache } from "@/lib/read-cache";
+
+const articles = createReadCache<BlogPost>();
+const reading = createReadCache<ArticleReading>();
+export const cachedArticle = (slug: string) => articles.peek(slug);
+export function prefetchArticle(slug: string) {
+  void blogAPI.article(slug).catch(() => { /* Opening the page offers retry on failure. */ });
+}
 
 const baseURL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
 export const apiConfigured = Boolean(baseURL);
@@ -34,13 +42,17 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
 
 export const blogAPI = {
   list: (offset = 0, limit = 12) => request<PostPage>(`/api/posts?offset=${offset}&limit=${limit}`),
-  article: (slug: string) => request<BlogPost>(`/api/posts/${encodeURIComponent(slug)}`),
-  reading: (slug: string) => request<ArticleReading>(`/api/posts/${encodeURIComponent(slug)}/reading`),
+  article: (slug: string) => articles.get(slug, () => request<BlogPost>(`/api/posts/${encodeURIComponent(slug)}`)),
+  reading: (slug: string) => reading.get(slug, () => request<ArticleReading>(`/api/posts/${encodeURIComponent(slug)}/reading`)),
   login: (username: string, password: string) => request<{ token: string; expiresAt: string }>("/api/admin/login", { method: "POST", body: JSON.stringify({ username, password }) }),
   logout: (token: string) => request<void>("/api/admin/logout", { method: "POST" }, token),
   drafts: (token: string, offset = 0) => request<PostPage>(`/api/admin/posts?offset=${offset}`, {}, token),
   draft: (token: string, id: string) => request<BlogPost>(`/api/admin/posts/${encodeURIComponent(id)}`, {}, token),
-  save: (token: string, data: PostInput, id?: string) => request<BlogPost>(id ? `/api/admin/posts/${encodeURIComponent(id)}` : "/api/admin/posts", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token),
+  save: async (token: string, data: PostInput, id?: string) => {
+    const post = await request<BlogPost>(id ? `/api/admin/posts/${encodeURIComponent(id)}` : "/api/admin/posts", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token);
+    articles.clear(); reading.clear();
+    return post;
+  },
   tools: async () => {
     const data = await request<{ tools: ExternalTool[] }>("/api/tools");
     if (!Array.isArray(data.tools)) throw new ApiError("工具接口返回格式不正确，请检查 API 域名是否指向 EasyQ 后端。", 502);

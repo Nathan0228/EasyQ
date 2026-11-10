@@ -12,8 +12,20 @@ import SunIcon from "@/assets/svg/easyq/sun.svg";
 import ToolsIcon from "@/assets/svg/easyq/tools.svg";
 import TrashIcon from "@/assets/svg/easyq/trash.svg";
 import UploadIcon from "@/assets/svg/easyq/upload.svg";
+import EditIcon from "@/assets/svg/easyq/edit.svg";
+import EyeIcon from "@/assets/svg/easyq/eye.svg";
+import LogoutIcon from "@/assets/svg/easyq/logout.svg";
+import PlusIcon from "@/assets/svg/easyq/plus.svg";
+import RefreshIcon from "@/assets/svg/easyq/refresh.svg";
+import SaveIcon from "@/assets/svg/easyq/save.svg";
 
 const icons = {
+  edit: EditIcon,
+  eye: EyeIcon,
+  logout: LogoutIcon,
+  plus: PlusIcon,
+  refresh: RefreshIcon,
+  save: SaveIcon,
   arrow: ArrowIcon,
   book: BookIcon,
   check: CheckIcon,

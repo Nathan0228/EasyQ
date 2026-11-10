@@ -4,7 +4,7 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/app-text";
 import { Loading, Notice, PostRow } from "@/components/portal-ui";
 import { useApp } from "@/context/app-context";
-import { blogAPI } from "@/lib/blog-api";
+import { blogAPI, prefetchArticle } from "@/lib/blog-api";
 import type { ArticleReading, BlogPost } from "@/types/blog";
 
 function Neighbor({ post, next = false }: { post: BlogPost | null; next?: boolean }) {
@@ -17,7 +17,7 @@ function Neighbor({ post, next = false }: { post: BlogPost | null; next?: boolea
   </>;
   return <View className="flex-1">
     {post ? <Link href={{ pathname: "/blog/[slug]", params: { slug: post.slug } }} asChild>
-      <Pressable accessibilityRole="link" accessibilityLabel={`${label} ${post.title}`} className="feature-card ui-pressable min-h-[120px] flex-1 rounded-2xl border p-5" style={{ backgroundColor: colors.surface, borderColor: colors.border }}>{content}</Pressable>
+      <Pressable onHoverIn={() => prefetchArticle(post.slug)} onPressIn={() => prefetchArticle(post.slug)} accessibilityRole="link" accessibilityLabel={`${label} ${post.title}`} className="feature-card ui-pressable min-h-[120px] flex-1 rounded-2xl border p-5" style={{ backgroundColor: colors.surface, borderColor: colors.border }}>{content}</Pressable>
     </Link> : <View className="min-h-[120px] flex-1 rounded-2xl border p-5" style={{ borderColor: colors.border }}>{content}</View>}
   </View>;
 }

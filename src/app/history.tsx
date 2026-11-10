@@ -21,7 +21,7 @@ function formatDate(value: string, language: "zh" | "en") {
 }
 
 function HistoryTop({ onLock }: { onLock?: () => void }) {
-  const { colors, language } = useApp();
+  const { colors, language, theme } = useApp();
   const t = copy[language];
 
   return (
@@ -31,8 +31,8 @@ function HistoryTop({ onLock }: { onLock?: () => void }) {
           accessibilityRole="button"
           accessibilityLabel={t.lock}
           onPress={onLock}
-          className="ui-pressable h-10 w-10 items-center justify-center rounded-full active:opacity-80"
-          style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
+          className={`glass-button glass-button--${theme} ui-pressable h-11 w-11 items-center justify-center rounded-xl`}
+          style={{ borderWidth: 1, ...(Platform.OS === "web" ? {} : { backgroundColor: colors.surface, borderColor: colors.border }) }}
         >
           <AppIcon name="lock" color={colors.text} size={18} />
         </Pressable>
@@ -157,7 +157,7 @@ export default function History() {
             <View className="w-full gap-3">
               <AppInput value={password} onChangeText={(value) => { setPassword(value); setError(""); }} placeholder={t.passwordPlaceholder} secureTextEntry autoCapitalize="none" onSubmitEditing={unlock} />
               {Boolean(error) && <AppText className="text-sm" style={{ color: colors.danger }}>{error}</AppText>}
-              <AppButton label={t.unlock} onPress={unlock} />
+              <AppButton iconName="lock" label={t.unlock} onPress={unlock} />
             </View>
           )}
         </Card>
@@ -192,8 +192,8 @@ export default function History() {
               </View>
             </View>
             <View className="gap-3 sm:flex-row">
-              <View className="sm:flex-1"><AppButton label={t.export} onPress={() => void handleExport()} disabled={busy} variant="secondary" icon={<AppIcon name="download" color={colors.text} size={17} />} /></View>
-              <View className="sm:flex-1"><AppButton label={t.import} onPress={() => void handleImport()} disabled={busy} variant="secondary" icon={<AppIcon name="upload" color={colors.text} size={17} />} /></View>
+              <View className="sm:flex-1"><AppButton label={t.export} onPress={() => void handleExport()} disabled={busy} variant="secondary" iconName="download" /></View>
+              <View className="sm:flex-1"><AppButton label={t.import} onPress={() => void handleImport()} disabled={busy} variant="secondary" iconName="upload" /></View>
             </View>
           </Card>
           <View className="mb-4 flex-row items-center justify-between px-1">

@@ -1,6 +1,6 @@
 # 本地 SVG 图标
 
-- `easyq/`：14 个界面图标，统一使用 SVG Repo 收录的 [Feather Icons](https://www.svgrepo.com/collection/feather-icons/)，MIT 授权，作者 Cole Bemis。完整许可见 [easyq/LICENSE.txt](easyq/LICENSE.txt)。
+- `easyq/`：20 个界面图标，统一使用 SVG Repo 收录的 [Feather Icons](https://www.svgrepo.com/collection/feather-icons/)，MIT 授权，作者 Cole Bemis。完整许可见 [easyq/LICENSE.txt](easyq/LICENSE.txt)。
 - `social/`：14 个常见社交平台图标，包括 GitHub、微信、QQ、Telegram、Discord、YouTube、Instagram、Facebook、LinkedIn、Twitter、TikTok、WhatsApp、Reddit 和 Medium。来源及品牌许可见 [social/LICENSE.md](social/LICENSE.md)。
 
 SVG Repo 下载端点本次返回 HTTP 429 / Vercel 验证页，因此资源从公开的 [nyuuzyou/svgrepo 镜像数据集](https://huggingface.co/datasets/nyuuzyou/svgrepo)提取。原站详情页、原下载地址、镜像地址、许可证元数据及修改前后 SHA-256 均记录在 [sources.json](sources.json)，没有将验证页面作为 SVG 保存。镜像中的许可信息与原作者许可一并保留。
@@ -31,7 +31,7 @@ Metro 使用 `scripts/svg-transformer.cjs` 将文件转换为 `react-native-svg`
 
 Cloudflare 构建若在 `react-native-svg-transformer/index.js` 报 `Cannot read properties of null (reading 'transform')`，表示旧入口未能解析 Expo 编译器。提交时必须同时包含 `metro.config.js` 与 `scripts/svg-transformer.cjs`；无需修改 `node_modules`，构建命令仍为 `npm run build:web`。
 
-运行 `npm run test:svg` 可检查 Web 和 iOS 的 TypeScript 编译及本地 SVG 转换，运行 `npm run build:web -- --clear` 可强制清缓存验证完整网页构建。
+运行 `npm run build:web -- --clear` 可强制清缓存验证完整网页构建。
 
 如果 `AppIcon` 报错 `Element type is invalid ... got: object`，请先停止原来的 Expo 服务（终端按 `Ctrl+C`），再执行上述命令，并刷新浏览器。旧服务可能仍将 `.svg` 导出为含 `uri` 的图片资源对象，而不是 React 组件；修改 `metro.config.js` 后仅热刷新页面不会加载新配置。不要保留旧服务并在另一个端口启动后继续访问旧端口。
 

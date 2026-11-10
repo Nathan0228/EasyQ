@@ -47,7 +47,7 @@ export function DeleteConfirmModal({ question, busy, onCancel, onConfirm }: Prop
             </View>
           )}
           <View className="mt-6 gap-3 sm:flex-row">
-            <View className="sm:flex-1"><AppButton label={t.cancel} onPress={onCancel} disabled={busy} variant="secondary" /></View>
+            <View className="sm:flex-1"><AppButton iconName="close" label={t.cancel} onPress={onCancel} disabled={busy} variant="secondary" /></View>
             <View className="sm:flex-1"><AppButton label={t.confirmDelete} onPress={onConfirm} disabled={busy} variant="danger" /></View>
           </View>
         </View>

@@ -2,7 +2,7 @@ import { Link } from "expo-router";
 import { Image, Platform, Pressable, ScrollView, TextInput, useWindowDimensions, View, type TextInputProps } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { AppIcon } from "@/components/app-icon";
+import { AppIcon, type IconName } from "@/components/app-icon";
 import { AppText } from "@/components/app-text";
 import { useApp } from "@/context/app-context";
 import { copy } from "@/i18n/copy";
@@ -63,8 +63,8 @@ export function BrandHeaderContent({ right, showPreferences = true, subtitle, co
             accessibilityRole="button"
             accessibilityLabel={theme === "light" ? t.themeDark : t.themeLight}
             onPress={() => void setTheme(theme === "light" ? "dark" : "light")}
-            className="ui-pressable h-10 w-10 items-center justify-center rounded-full active:opacity-80"
-            style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
+            className={`glass-button glass-button--${theme} ui-pressable h-11 w-11 items-center justify-center rounded-xl`}
+            style={{ borderWidth: 1, ...(Platform.OS === "web" ? {} : { backgroundColor: colors.surface, borderColor: colors.border }) }}
           >
             <AppIcon name={theme === "light" ? "moon" : "sun"} color={colors.text} size={19} />
           </Pressable>
@@ -72,8 +72,8 @@ export function BrandHeaderContent({ right, showPreferences = true, subtitle, co
             accessibilityRole="button"
             accessibilityLabel={language === "zh" ? "Switch to English" : "切换为中文"}
             onPress={() => void setLanguage(language === "zh" ? "en" : "zh")}
-            className="ui-pressable h-10 min-w-10 items-center justify-center rounded-full px-2 active:opacity-80"
-            style={{ backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border }}
+            className={`glass-button glass-button--${theme} ui-pressable h-11 min-w-11 items-center justify-center rounded-xl px-2`}
+            style={{ borderWidth: 1, ...(Platform.OS === "web" ? {} : { backgroundColor: colors.surface, borderColor: colors.border }) }}
           >
             <AppText className="text-xs font-bold">{t.language}</AppText>
           </Pressable>
@@ -92,26 +92,30 @@ export function Card({ children, className = "" }: { children: React.ReactNode; 
   );
 }
 
-export function AppButton({ label, onPress, variant = "primary", disabled = false, icon }: {
+export function AppButton({ label, onPress, variant = "primary", disabled = false, icon, iconName, compact = false }: {
   label: string;
   onPress: () => void;
   variant?: "primary" | "secondary" | "danger";
   disabled?: boolean;
   icon?: React.ReactNode;
+  iconName?: IconName;
+  compact?: boolean;
 }) {
-  const { colors } = useApp();
-  const backgroundColor = variant === "primary" ? colors.accent : variant === "danger" ? colors.dangerButton : colors.surfaceSoft;
-  const foregroundColor = variant === "primary" ? colors.accentText : variant === "danger" ? "#FFFFFF" : colors.text;
+  const { colors, theme } = useApp();
+  const foregroundColor = variant === "danger" ? (theme === "dark" ? colors.danger : colors.dangerButton) : variant === "primary" ? colors.accent : colors.text;
+  const backgroundColor = variant === "danger" ? (theme === "dark" ? "rgba(158,64,57,0.2)" : "rgba(167,62,56,0.08)") : theme === "dark" ? "rgba(65,79,68,0.65)" : "rgba(255,254,250,0.7)";
+  const resolvedIcon = iconName ?? (variant === "danger" ? "trash" : undefined);
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={onPress}
-      className="ui-pressable min-h-[54px] flex-row items-center justify-center gap-2 rounded-2xl px-5 active:opacity-80"
-      style={{ backgroundColor, opacity: disabled ? 0.55 : undefined }}
+      className={`glass-button glass-button--${theme} glass-button--${variant} ui-pressable flex-row items-center justify-center gap-2 px-4 py-2.5`}
+      style={{ minHeight: compact ? 44 : 48, borderRadius: 12, borderWidth: 1, opacity: disabled ? 0.42 : 1, ...(Platform.OS === "web" ? {} : { backgroundColor, borderColor: colors.border }) }}
     >
-      {icon}
-      <AppText className="text-[15px] font-semibold" style={{ color: foregroundColor }}>{label}</AppText>
+      {icon ?? (resolvedIcon ? <AppIcon name={resolvedIcon} color={foregroundColor} size={17} /> : null)}
+      <AppText className="shrink text-center text-[14px] font-medium leading-5" style={{ color: foregroundColor }}>{label}</AppText>
     </Pressable>
   );
 }

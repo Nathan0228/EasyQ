@@ -16,7 +16,7 @@ export function AdminLogin() {
     if (busy) return;
     if (!username || !password) { setError("请输入管理员用户名和密码。"); return; }
     setBusy(true); setError("");
-    try { const session = await blogAPI.login(username, password); setPassword(""); setToken(session.token); }
+    try { const session = await blogAPI.login(username, password); setPassword(""); setToken(session.token, session.expiresAt); }
     catch (e) { setError(e instanceof Error ? e.message : "登录失败"); }
     finally { setBusy(false); }
   }
@@ -29,7 +29,7 @@ export function AdminLogin() {
       <View><SectionLabel>用户名</SectionLabel><AppInput accessibilityLabel="管理员用户名" autoCapitalize="none" autoComplete="username" value={username} onChangeText={setUsername} /></View>
       <View><SectionLabel>密码</SectionLabel><AppInput accessibilityLabel="管理员密码" secureTextEntry autoComplete="current-password" value={password} onChangeText={setPassword} onSubmitEditing={() => void login()} /></View>
       {Boolean(error) && <Notice message={error} />}
-      <AppButton label={busy ? "正在登录…" : "进入写作台"} disabled={busy || !apiConfigured} onPress={() => void login()} />
+      <AppButton iconName="lock" label={busy ? "正在登录…" : "进入写作台"} disabled={busy || !apiConfigured} onPress={() => void login()} />
     </View>
   </PortalScreen>;
 }

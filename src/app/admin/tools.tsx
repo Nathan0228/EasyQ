@@ -81,24 +81,24 @@ export default function ToolManager() {
         <View><SectionLabel>网址 · HTTP / HTTPS</SectionLabel><AppInput accessibilityLabel="网站网址" value={editor.form.url} editable={!busy} onChangeText={v => update("url", v)} autoCapitalize="none" autoCorrect={false} keyboardType="url" maxLength={2048} placeholder="https://example.com" /></View>
         <View><SectionLabel>图标地址 · 公开 HTTPS 图片，可留空</SectionLabel><AppInput accessibilityLabel="图标地址" value={editor.form.iconUrl} editable={!busy} onChangeText={v => update("iconUrl", v)} autoCapitalize="none" autoCorrect={false} keyboardType="url" maxLength={2048} placeholder="https://example.com/icon.png" /></View>
         <View><SectionLabel>介绍</SectionLabel><AppInput accessibilityLabel="网站介绍" value={editor.form.description} editable={!busy} onChangeText={v => update("description", v)} multiline maxLength={400} placeholder="它能帮你做什么？" /></View>
-        <View className="gap-3 sm:flex-row"><View className="flex-1"><AppButton label={busy ? "保存中…" : "保存入口"} disabled={busy} onPress={() => void save()} /></View><AppButton label="取消编辑" variant="secondary" disabled={busy} onPress={() => dirty ? setLeave(() => () => setEditor(null)) : setEditor(null)} /></View>
+        <View className="gap-3 sm:flex-row"><View className="flex-1"><AppButton iconName="save" label={busy ? "保存中…" : "保存入口"} disabled={busy} onPress={() => void save()} /></View><AppButton iconName="close" label="取消编辑" variant="secondary" disabled={busy} onPress={() => dirty ? setLeave(() => () => setEditor(null)) : setEditor(null)} /></View>
       </View>
-    </Card> : <AppButton label="添加站外网站" onPress={() => edit()} disabled={busy} />}
-    <View className="mb-3 mt-8 flex-row flex-wrap items-center justify-between gap-3"><AppText className="text-lg font-semibold">已添加的网站</AppText><AppButton label="重新加载" variant="secondary" disabled={busy || loading || editor !== null} onPress={() => void load()} /></View>
+    </Card> : <AppButton iconName="plus" label="添加站外网站" onPress={() => edit()} disabled={busy} />}
+    <View className="mb-3 mt-8 flex-row flex-wrap items-center justify-between gap-3"><AppText className="text-lg font-semibold">已添加的网站</AppText><AppButton compact iconName="refresh" label="重新加载" variant="secondary" disabled={busy || loading || editor !== null} onPress={() => void load()} /></View>
     {loading && <Loading />}
     {!loading && !error && tools.length === 0 && <Notice message="还没有站外网站，可以从一个常用的网站开始。" />}
     {tools.map(tool => <View key={tool.id} className="gap-4 border-b py-6" style={{ borderColor: colors.border }}>
       <View className="flex-row items-center gap-4"><ToolIcon key={tool.iconUrl || "default"} uri={tool.iconUrl} name={tool.name} /><View className="flex-1"><AppText className="text-lg font-semibold">{tool.name}</AppText><AppText numberOfLines={2} className="mt-1 text-xs" style={{ color: colors.secondary }}>{tool.url}</AppText></View></View>
       <AppText className="text-sm leading-6" style={{ color: colors.secondary }}>{tool.description}</AppText>
-      <View className="flex-row gap-3"><View className="flex-1"><AppButton label="编辑" variant="secondary" disabled={busy || editor !== null} onPress={() => edit(tool)} /></View><View className="flex-1"><AppButton label="删除" variant="danger" disabled={busy || editor !== null} onPress={() => setDeleting(tool)} /></View></View>
+      <View className="flex-row flex-wrap gap-2"><AppButton compact iconName="edit" label="编辑" variant="secondary" disabled={busy || editor !== null} onPress={() => edit(tool)} /><AppButton compact iconName="trash" label="删除" variant="danger" disabled={busy || editor !== null} onPress={() => setDeleting(tool)} /></View>
     </View>)}
     <TextLink href="/tools" label="查看公开工具页 →" />
     <Modal transparent visible={deleting !== null || leave !== null} animationType="fade" onRequestClose={() => { if (!busy) { setDeleting(null); setLeave(null); } }}>
       <View className="flex-1 items-center justify-center p-6" style={{ backgroundColor: "rgba(16,24,18,0.58)" }}><View className="w-full max-w-[430px] gap-4 rounded-3xl p-6" style={{ backgroundColor: colors.surface }}>
         <AppText accessibilityRole="header" className="text-xl font-semibold">{deleting ? "删除这个入口？" : "放弃未保存的修改？"}</AppText>
         <AppText className="text-sm leading-6">{deleting ? `“${deleting.name}”将从工具页移除，原网站不受影响。` : "离开后本次编辑内容将不会保存。"}</AppText>
-        <AppButton label="取消" variant="secondary" disabled={busy} onPress={() => { setDeleting(null); setLeave(null); }} />
-        <AppButton label={busy ? "处理中…" : deleting ? "确认删除" : "放弃修改"} variant="danger" disabled={busy} onPress={() => { if (deleting) void remove(); else { const next = leave; setLeave(null); setEditor(null); next?.(); } }} />
+        <AppButton iconName="close" label="取消" variant="secondary" disabled={busy} onPress={() => { setDeleting(null); setLeave(null); }} />
+        <AppButton iconName={deleting ? "trash" : "close"} label={busy ? "处理中…" : deleting ? "确认删除" : "放弃修改"} variant="danger" disabled={busy} onPress={() => { if (deleting) void remove(); else { const next = leave; setLeave(null); setEditor(null); next?.(); } }} />
       </View></View>
     </Modal>
   </PortalScreen>;

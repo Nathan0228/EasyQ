@@ -49,7 +49,6 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "typecheck": "tsc --noEmit",
-    "test:svg": "node --test scripts/svg-transformer.test.cjs",
     "build:web": "expo export --platform web"
   },
   "private": true

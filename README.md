@@ -72,9 +72,11 @@ Expo 的 `web.output: "single"` 只生成一个 `index.html`，`/blog` 和 `/blo
 
 如果实际创建的是 **Pages 项目**，使用上方 Pages 设置；没有顶层 `404.html` 时，Pages 默认提供 SPA 回退，无需 `_redirects`。相关说明：[Workers SPA](https://developers.cloudflare.com/workers/static-assets/routing/single-page-application/)、[Pages SPA](https://developers.cloudflare.com/pages/configuration/serving-pages/#single-page-application-spa-rendering)。
 
-修改后需要重新部署前端；只更新 VPS 的 Go 服务无法修复网页路径的 404。部署后在新标签页直接打开 `/blog` 和一篇已发布文章的 `/blog/实际-slug`，刷新后应仍显示对应页面，地址不变。草稿不能公开分享；后台刷新后仍需重新登录，这是当前会话仅保存在内存中的行为。本项目没有添加服务工作线程；添加到主屏幕不代表离线可用。
+修改后需要重新部署前端；只更新 VPS 的 Go 服务无法修复网页路径的 404。部署后在新标签页直接打开 `/blog` 和一篇已发布文章的 `/blog/实际-slug`，刷新后应仍显示对应页面，地址不变。草稿不能公开分享；管理员会话在当前浏览器标签页的 sessionStorage 中保存，刷新会恢复登录；沿用后端返回的 12 小时有效期，不会因刷新续期。退出登录、过期或 API 返回 401 会清除当前会话。关闭标签页后通常需要重新登录；原生端仍仅保存在内存中。本项目没有添加服务工作线程；添加到主屏幕不代表离线可用。
 
 ## 项目结构
+
+文章阅读会在当前应用会话内缓存正文及推荐结果 60 秒，各保留最多 20 条；不会写入浏览器持久存储。相同请求并发时合并，悬停或按下文章入口会预取正文，正文和推荐并行加载。重新聚焦文章时不再先清空正文。管理员保存、发布或撤回成功后清除当前应用的阅读缓存；其他访客最多在缓存有效期内看到旧版本。
 
 界面图标存放于 `assets/svg/easyq/`，社交平台图标存放于 `assets/svg/social/`。通过 `AppIcon` / `SocialIcon` 引用本地 SVG，支持主题颜色和尺寸；来源、许可证及使用示例见 [SVG 图标说明](assets/svg/README.md)。修改 Metro 的 SVG 配置后，请使用 `npx expo start --clear` 重启开发服务。
 

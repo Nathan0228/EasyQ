@@ -2,6 +2,7 @@ import { useFocusEffect, useLocalSearchParams, usePreventRemove } from "expo-rou
 import { useCallback, useState } from "react";
 import { Modal, Pressable, View } from "react-native";
 import { AdminLogin } from "@/components/admin-login";
+import { AppIcon } from "@/components/app-icon";
 import { AppText } from "@/components/app-text";
 import { Markdown } from "@/components/markdown";
 import { Eyebrow, Loading, Notice, PortalScreen, TextLink } from "@/components/portal-ui";
@@ -21,7 +22,7 @@ export default function Editor() {
 
 function EditorContent({ routeID }: { routeID?: string }) {
   const { token, setToken } = useBlogSession();
-  const { colors } = useApp();
+  const { colors, theme } = useApp();
   const [id, setID] = useState(routeID);
   const [form, setForm] = useState<PostInput>(empty);
   const [baseline, setBaseline] = useState(JSON.stringify(empty));
@@ -63,7 +64,7 @@ function EditorContent({ routeID }: { routeID?: string }) {
     <View className="mb-6 flex-row items-center justify-between"><AppText accessibilityRole="header" className="text-[30px] font-semibold">{id ? "继续写作" : "新的篇章"}</AppText><AppText className="text-xs" style={{ color: colors.secondary }}>{dirty ? "尚未保存" : "已同步"}</AppText></View>
     {!loaded ? <>{busy ? <Loading /> : <Notice message={message || "无法读取文章"} retry={() => void load()} />}</> : <>
       {Boolean(message) && <Notice message={message} />}
-      <View className="mb-6 flex-row gap-5"><Pressable accessibilityRole="tab" accessibilityState={{ selected: !preview }} onPress={() => setPreview(false)} className="min-h-11 justify-center"><AppText style={{ color: !preview ? colors.accent : colors.secondary }}>编辑</AppText></Pressable><Pressable accessibilityRole="tab" accessibilityState={{ selected: preview }} onPress={() => setPreview(true)} className="min-h-11 justify-center"><AppText style={{ color: preview ? colors.accent : colors.secondary }}>阅读预览</AppText></Pressable></View>
+      <View className="mb-6 flex-row gap-5"><Pressable accessibilityRole="tab" accessibilityState={{ selected: !preview }} onPress={() => setPreview(false)} className={`glass-button glass-button--${theme} ui-pressable min-h-11 flex-row items-center justify-center gap-2 rounded-xl border px-4`}><AppIcon name="edit" size={16} color={!preview ? colors.accent : colors.secondary} /><AppText style={{ color: !preview ? colors.accent : colors.secondary }}>编辑</AppText></Pressable><Pressable accessibilityRole="tab" accessibilityState={{ selected: preview }} onPress={() => setPreview(true)} className={`glass-button glass-button--${theme} ui-pressable min-h-11 flex-row items-center justify-center gap-2 rounded-xl border px-4`}><AppIcon name="eye" size={16} color={preview ? colors.accent : colors.secondary} /><AppText style={{ color: preview ? colors.accent : colors.secondary }}>阅读预览</AppText></Pressable></View>
       {preview ? <View className="min-h-[320px]"><AppText className="mb-5 text-[32px] font-semibold leading-[44px]">{form.title || "文章标题"}</AppText><AppText className="mb-7 text-base leading-7" style={{ color: colors.secondary }}>{form.excerpt}</AppText><Markdown content={form.content || "正文会在这里呈现。"} /></View> : <View className="gap-5">
         <View><SectionLabel>标题</SectionLabel><AppInput accessibilityLabel="文章标题" editable={!busy} value={form.title} onChangeText={v => update("title", v)} maxLength={200} placeholder="想写些什么？" /></View>
         <View><SectionLabel>文章地址 · 小写英文、数字、连字符（留空自动生成）</SectionLabel><AppInput accessibilityLabel="文章地址" editable={!busy} value={form.slug} onChangeText={v => update("slug", v)} autoCapitalize="none" maxLength={160} placeholder="a-small-beginning" /></View>
@@ -72,13 +73,13 @@ function EditorContent({ routeID }: { routeID?: string }) {
         <View><SectionLabel>正文 · Markdown</SectionLabel><AppInput accessibilityLabel="文章正文" editable={!busy} value={form.content} onChangeText={v => update("content", v)} multiline style={{ minHeight: 420, lineHeight: 27 }} placeholder={"## 从这里开始\n\n写下你的第一段文字。"} /></View>
         <AppText className="text-xs leading-6" style={{ color: colors.secondary }}>支持标题、粗体、行内代码、代码块、列表、引用、链接和图片。图片可使用 ![说明](https://图片地址)。不会执行 HTML 或脚本。</AppText>
       </View>}
-      <View className="mt-8 gap-3 sm:flex-row"><View className="flex-1"><AppButton label={busy ? "保存中…" : form.status === "published" ? "保存更新" : "保存草稿"} disabled={busy} variant="secondary" onPress={() => void save(form.status)} /></View><View className="flex-1"><AppButton label={form.status === "published" ? "撤回为草稿" : "发布文章"} disabled={busy} onPress={() => void save(form.status === "published" ? "draft" : "published")} /></View></View>
+      <View className="mt-8 gap-3 sm:flex-row"><View className="flex-1"><AppButton iconName="save" label={busy ? "保存中…" : form.status === "published" ? "保存更新" : "保存草稿"} disabled={busy} variant="secondary" onPress={() => void save(form.status)} /></View><View className="flex-1"><AppButton iconName={form.status === "published" ? "book" : "upload"} label={form.status === "published" ? "撤回为草稿" : "发布文章"} disabled={busy} onPress={() => void save(form.status === "published" ? "draft" : "published")} /></View></View>
       {form.status === "published" && <TextLink href={{ pathname: "/blog/[slug]", params: { slug: form.slug } }} label="查看公开文章 ↗" />}
     </>}
     <Modal transparent visible={Boolean(leave)} animationType="fade" onRequestClose={() => setLeave(null)}>
       <View className="flex-1 items-center justify-center p-6" style={{ backgroundColor: "rgba(0,0,0,0.45)" }}><View className="w-full max-w-[420px] gap-4 rounded-3xl p-6" style={{ backgroundColor: colors.surface }}>
         <AppText className="text-xl font-semibold">还有未保存的文字</AppText><AppText className="text-sm leading-6">离开会丢失本次修改。可以留下来先保存草稿。</AppText>
-        <AppButton label="继续写作" onPress={() => setLeave(null)} /><AppButton label="放弃修改并离开" variant="secondary" onPress={() => { setBaseline(JSON.stringify(form)); const repeat = leave; setLeave(null); repeat?.(); }} />
+        <AppButton iconName="edit" label="继续写作" onPress={() => setLeave(null)} /><AppButton iconName="close" label="放弃修改并离开" variant="secondary" onPress={() => { setBaseline(JSON.stringify(form)); const repeat = leave; setLeave(null); repeat?.(); }} />
       </View></View>
     </Modal>
   </PortalScreen>;

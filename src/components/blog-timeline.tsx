@@ -4,6 +4,7 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/app-text";
 import { useApp } from "@/context/app-context";
 import { groupBlogTimeline, type TimelineEntry } from "@/lib/blog-timeline";
+import { prefetchArticle } from "@/lib/blog-api";
 import type { BlogPost } from "@/types/blog";
 
 const monthNames = ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
@@ -22,7 +23,7 @@ function TimelineArticle({ entry, month }: { entry: TimelineEntry; month: number
   return <View className="relative pl-10">
     <View pointerEvents="none" style={{ position: "absolute", left: 6, top: 28, width: 9, height: 9, borderRadius: 5, borderWidth: 2, borderColor: colors.accent, backgroundColor: colors.background }} />
     <Link href={{ pathname: "/blog/[slug]", params: { slug: post.slug } }} asChild>
-      <Pressable accessibilityRole="link" className="editorial-row ui-pressable border-b pb-6 pt-5" style={{ borderColor: colors.border }}>
+      <Pressable onHoverIn={() => prefetchArticle(post.slug)} onPressIn={() => prefetchArticle(post.slug)} accessibilityRole="link" className="editorial-row ui-pressable border-b pb-6 pt-5" style={{ borderColor: colors.border }}>
         <View className="mb-3 flex-row flex-wrap items-center gap-3">
           <AppText className="text-xs" style={{ color: colors.secondary }}>{date}</AppText>
           {Boolean(post.category) && <AppText className="text-xs" style={{ color: colors.accent }}>{post.category}</AppText>}

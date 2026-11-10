@@ -26,7 +26,7 @@ export default function Studio() {
   async function logout() {
     if (!token) return;
     try { await blogAPI.logout(token); setToken(null); setPosts([]); }
-    catch (e) { setError(e instanceof Error ? e.message : "退出失败，请重试"); }
+    catch (e) { if (e instanceof ApiError && e.status === 401) { setToken(null); setPosts([]); } else setError(e instanceof Error ? e.message : "退出失败，请重试"); }
   }
   if (!token) return <AdminLogin />;
   return <PortalScreen>
@@ -34,12 +34,12 @@ export default function Studio() {
     <TextLink href="/admin/tools" label="管理工具入口 →" />
     <AppText accessibilityRole="header" className="mb-4 text-[34px] font-semibold">把想法写下来。</AppText>
     <AppText className="mb-8 text-sm leading-6">草稿仅你可见。发布后的文章会出现在公开博客中。</AppText>
-    <View className="mb-5 gap-3 sm:flex-row"><View className="flex-1"><AppButton label="写一篇新文章" onPress={() => router.push("/admin/editor")} /></View><AppButton label="退出登录" variant="secondary" onPress={() => void logout()} /></View>
+    <View className="mb-5 gap-3 sm:flex-row"><View className="flex-1"><AppButton iconName="edit" label="写一篇新文章" onPress={() => router.push("/admin/editor")} /></View><AppButton iconName="logout" label="退出登录" variant="secondary" onPress={() => void logout()} /></View>
     {Boolean(error) && <Notice message={error} retry={() => void load()} />}
     {posts.map(post => <PostRow key={post.id} post={post} admin />)}
     {busy && <Loading />}
     {!busy && !error && !posts.length && <Notice message="写作台还是空的。从第一篇文章开始吧。" />}
-    {more && !busy && <AppButton label="加载更多" variant="secondary" onPress={() => void load(posts.length)} />}
+    {more && !busy && <AppButton iconName="plus" label="加载更多" variant="secondary" onPress={() => void load(posts.length)} />}
   </PortalScreen>;
 }
 

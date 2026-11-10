@@ -1,6 +1,6 @@
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { ActivityIndicator, Platform, Pressable, View } from "react-native";
 
 import { AppIcon } from "@/components/app-icon";
 import { AppText } from "@/components/app-text";
@@ -11,7 +11,7 @@ import { showMessage } from "@/lib/dialog";
 
 export default function QuestionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { ready, questions, answerQuestion, language, colors } = useApp();
+  const { ready, questions, answerQuestion, language, colors, theme } = useApp();
   const t = copy[language];
   const [answer, setAnswer] = useState("");
   const [busy, setBusy] = useState(false);
@@ -43,7 +43,7 @@ export default function QuestionScreen() {
         <Card className="items-center py-12">
           <AppText className="mb-2 text-center text-[23px] font-bold">{t.notFound}</AppText>
           <AppText className="mb-7 text-center text-[14px] leading-[22px]" style={{ color: colors.secondary }}>{t.notFoundDescription}</AppText>
-          <View className="w-full"><AppButton label={t.returnHome} onPress={() => router.replace("/")} /></View>
+          <View className="w-full"><AppButton iconName="home" label={t.returnHome} onPress={() => router.replace("/")} /></View>
         </Card>
       </Screen>
     );
@@ -69,7 +69,7 @@ export default function QuestionScreen() {
               {item.mode === "binary" ? (item.answer.value === "yes" ? t.yes : t.no) : item.answer.value}
             </AppText>
           </Card>
-          <AppButton label={t.closeResult} onPress={() => router.replace("/ask")} />
+          <AppButton iconName="close" label={t.closeResult} onPress={() => router.replace("/ask")} />
         </>
       ) : (
         <>
@@ -89,20 +89,20 @@ export default function QuestionScreen() {
                   accessibilityRole="button"
                   disabled={busy}
                   onPress={() => void submit("yes")}
-                  className="ui-pressable min-h-[74px] flex-row items-center justify-between rounded-2xl px-6 active:opacity-80"
-                  style={{ backgroundColor: colors.surfaceSoft, opacity: busy ? 0.55 : undefined }}
+                  className={`glass-button glass-button--${theme} glass-button--primary ui-pressable min-h-[68px] flex-row items-center justify-between rounded-xl px-6`}
+                  style={{ borderWidth: 1, ...(Platform.OS === "web" ? {} : { backgroundColor: colors.surfaceSoft, borderColor: colors.border }), opacity: busy ? 0.42 : 1 }}
                 >
-                  <AppText className="text-[22px] font-bold" style={{ color: colors.accent }}>{t.yes}</AppText>
+                  <AppText className="text-[22px] font-medium" style={{ color: colors.accent }}>{t.yes}</AppText>
                   <AppIcon name="check" color={colors.accent} size={24} />
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
                   disabled={busy}
                   onPress={() => void submit("no")}
-                  className="ui-pressable min-h-[74px] flex-row items-center justify-between rounded-2xl px-6 active:opacity-80"
-                  style={{ backgroundColor: colors.background, borderWidth: 1, borderColor: colors.border, opacity: busy ? 0.55 : undefined }}
+                  className={`glass-button glass-button--${theme} ui-pressable min-h-[68px] flex-row items-center justify-between rounded-xl px-6`}
+                  style={{ borderWidth: 1, ...(Platform.OS === "web" ? {} : { backgroundColor: colors.background, borderColor: colors.border }), opacity: busy ? 0.42 : 1 }}
                 >
-                  <AppText className="text-[22px] font-bold">{t.no}</AppText>
+                  <AppText className="text-[22px] font-medium">{t.no}</AppText>
                   <AppIcon name="close" color={colors.secondary} size={22} />
                 </Pressable>
               </View>
@@ -110,7 +110,7 @@ export default function QuestionScreen() {
               <View className="mt-3">
                 <AppInput value={answer} onChangeText={(value) => { setAnswer(value); setError(""); }} placeholder={t.answerPlaceholder} accessibilityLabel={t.writeAnswer} multiline maxLength={2000} />
                 {Boolean(error) && <AppText className="mt-3 text-sm" style={{ color: colors.danger }}>{error}</AppText>}
-                <View className="mt-5"><AppButton label={t.submit} onPress={() => void submit(answer)} disabled={busy} /></View>
+                <View className="mt-5"><AppButton iconName="check" label={t.submit} onPress={() => void submit(answer)} disabled={busy} /></View>
               </View>
             )}
           </Card>

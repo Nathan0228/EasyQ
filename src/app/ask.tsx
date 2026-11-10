@@ -180,7 +180,7 @@ export default function Ask() {
               </AppText>
             )}
             <AppButton
-              label={t.setupAction}
+              iconName="lock" label={t.setupAction}
               onPress={() => void handleSetup()}
               disabled={busy}
             />
@@ -274,7 +274,7 @@ export default function Ask() {
           )}
           <View className="mt-6">
             <AppButton
-              label={t.create}
+              iconName="plus" label={t.create}
               onPress={() => void handleCreate()}
               disabled={busy}
             />

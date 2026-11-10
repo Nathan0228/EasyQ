@@ -370,6 +370,84 @@
       "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-Logo.jsonl.zst",
       "sourceSha256": "9f99598f84d4c06226c38a9ebc5fd26e715a0183bb814a38cd4e56b736dcad95",
       "localSha256": "65f011ef5fe7926f18536d085b160309e16f9ae938601942bfba2b8e5e95aa6d"
+    },
+    {
+      "file": "easyq/plus.svg",
+      "title": "Plus",
+      "svgRepoId": "349848",
+      "source": "https://www.svgrepo.com/svg/349848/plus",
+      "downloadUrl": "https://www.svgrepo.com/download/349848/plus.svg",
+      "collection": "feather-icons",
+      "license": "MIT",
+      "licenseOwner": "feathericons",
+      "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-MIT.jsonl.zst",
+      "sourceSha256": "3cc96da92f4d478d555465eabe27aea3d7a26b7e5480f10fd5544595eddae3ce",
+      "localSha256": "15c8c42232764e76c2f3b409f69114b9b583667828ca2d94bfd8b15fa1743e6d"
+    },
+    {
+      "file": "easyq/edit.svg",
+      "title": "Edit 3",
+      "svgRepoId": "349751",
+      "source": "https://www.svgrepo.com/svg/349751/edit-3",
+      "downloadUrl": "https://www.svgrepo.com/download/349751/edit-3.svg",
+      "collection": "feather-icons",
+      "license": "MIT",
+      "licenseOwner": "feathericons",
+      "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-MIT.jsonl.zst",
+      "sourceSha256": "19325a5671b43aa421b14132e1577f472e8498b153a38ee9a026c2d831a91fc8",
+      "localSha256": "4b6083c0d4fc360ef80b11421c9ec5332c766e7e2f84c8638008e735099f40e9"
+    },
+    {
+      "file": "easyq/save.svg",
+      "title": "Save",
+      "svgRepoId": "349861",
+      "source": "https://www.svgrepo.com/svg/349861/save",
+      "downloadUrl": "https://www.svgrepo.com/download/349861/save.svg",
+      "collection": "feather-icons",
+      "license": "MIT",
+      "licenseOwner": "feathericons",
+      "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-MIT.jsonl.zst",
+      "sourceSha256": "be753194c027dc6875ca4b4e47136a87dbc9aa19274ee11b8831b8ea473812ce",
+      "localSha256": "735600efc65f1f7110e01d12aad743e18280b7e1eb0de1669dc392cac2e5fe27"
+    },
+    {
+      "file": "easyq/logout.svg",
+      "title": "Log out",
+      "svgRepoId": "349805",
+      "source": "https://www.svgrepo.com/svg/349805/log-out",
+      "downloadUrl": "https://www.svgrepo.com/download/349805/log-out.svg",
+      "collection": "feather-icons",
+      "license": "MIT",
+      "licenseOwner": "feathericons",
+      "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-MIT.jsonl.zst",
+      "sourceSha256": "639aa1d1e7744b0f7e1dab0d5f43601cf4294e16af0eeff2b9f1b73db3c117c9",
+      "localSha256": "3b81154579973b9d7df5e917ff546e72a4520dc8622c027a51d99ebf585fd94d"
+    },
+    {
+      "file": "easyq/refresh.svg",
+      "title": "Refresh cw",
+      "svgRepoId": "349856",
+      "source": "https://www.svgrepo.com/svg/349856/refresh-cw",
+      "downloadUrl": "https://www.svgrepo.com/download/349856/refresh-cw.svg",
+      "collection": "feather-icons",
+      "license": "MIT",
+      "licenseOwner": "feathericons",
+      "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-MIT.jsonl.zst",
+      "sourceSha256": "dcb5207186b4cb35836b345ff07009d1e6d0f0f7d55cc21f02922311922d8d24",
+      "localSha256": "146a7dc4d972f70e56211362e70150e1f5ead98a41fe3ededa7c3aeb9c6a096b"
+    },
+    {
+      "file": "easyq/eye.svg",
+      "title": "Eye",
+      "svgRepoId": "349755",
+      "source": "https://www.svgrepo.com/svg/349755/eye",
+      "downloadUrl": "https://www.svgrepo.com/download/349755/eye.svg",
+      "collection": "feather-icons",
+      "license": "MIT",
+      "licenseOwner": "feathericons",
+      "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-MIT.jsonl.zst",
+      "sourceSha256": "90748bda11edbc3861d6b901850fb632d3df27a1b3036b3be7c88bcfef2442ff",
+      "localSha256": "cfdff4b79491fb1df1f49aef154172a0b17f68a4523c8a9f85df0b10f7b42ac1"
     }
   ]
 }

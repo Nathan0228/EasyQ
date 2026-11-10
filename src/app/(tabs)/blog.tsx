@@ -37,7 +37,7 @@ export default function Blog() {
     {!busy && !error && !posts.length && <Notice message={zh ? "第一篇文章还在酝酿，欢迎稍后再来。" : "The first story is on its way. Come back soon."} />}
     <BlogTimeline posts={posts} />
     {busy && <Loading />}
-    {more && !busy && <AppButton label={zh ? "阅读更多" : "More stories"} variant="secondary" onPress={() => void load(posts.length)} />}
+    {more && !busy && <AppButton iconName="book" label={zh ? "阅读更多" : "More stories"} variant="secondary" onPress={() => void load(posts.length)} />}
   </PortalScreen>;
 }
 
