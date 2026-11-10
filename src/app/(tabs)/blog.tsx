@@ -5,24 +5,28 @@ import { BlogTimeline } from "@/components/blog-timeline";
 import { Eyebrow, Loading, Notice, PortalScreen } from "@/components/portal-ui";
 import { AppButton } from "@/components/ui";
 import { useApp } from "@/context/app-context";
-import { apiConfigured, blogAPI } from "@/lib/blog-api";
-import type { BlogPost } from "@/types/blog";
+import { apiConfigured, blogAPI, cachedPostPage } from "@/lib/blog-api";
+import type { BlogPost, PostPage } from "@/types/blog";
 
 export default function Blog() {
   const { colors, language } = useApp();
   const zh = language === "zh";
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [busy, setBusy] = useState(true);
+  const [posts, setPosts] = useState<BlogPost[]>(() => cachedPostPage()?.posts ?? []);
+  const [busy, setBusy] = useState(() => !cachedPostPage());
   const [error, setError] = useState("");
-  const [more, setMore] = useState(false);
+  const [more, setMore] = useState(() => cachedPostPage()?.hasMore ?? false);
   const [retryOffset, setRetryOffset] = useState(0);
   const requestID = useRef(0);
+  const firstPage = useRef<PostPage | undefined>(cachedPostPage());
   const load = useCallback(async (offset = 0) => {
     const id = ++requestID.current;
-    setBusy(true); setError(""); setRetryOffset(offset);
+    setBusy(!cachedPostPage(offset)); setError(""); setRetryOffset(offset);
     try {
       const page = await blogAPI.list(offset);
       if (id !== requestID.current) return;
+      // A warm return must not discard pages the reader already loaded.
+      if (!offset && firstPage.current === page) return;
+      if (!offset) firstPage.current = page;
       setPosts((old) => offset ? [...old, ...page.posts] : page.posts); setMore(page.hasMore);
     }
     catch (e) { if (id === requestID.current) setError(e instanceof Error ? e.message : "加载失败"); }

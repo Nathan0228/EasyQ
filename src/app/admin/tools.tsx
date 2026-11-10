@@ -27,10 +27,10 @@ export default function ToolManager() {
   const [leave, setLeave] = useState<(() => void) | null>(null);
   const dirty = editor !== null && JSON.stringify(editor.form) !== JSON.stringify(editor.initial);
   usePreventRemove(dirty || busy, ({ repeat }) => { if (!busy) setLeave(() => repeat); });
-  const load = useCallback(async () => {
+  const load = useCallback(async (refresh = false) => {
     if (!token) return;
     setLoading(true); setError("");
-    try { setTools((await blogAPI.tools()).tools); }
+    try { setTools((await blogAPI.tools(refresh)).tools); }
     catch (e) { setError(e instanceof Error ? e.message : "加载失败"); }
     finally { setLoading(false); }
   }, [token]);
@@ -84,7 +84,7 @@ export default function ToolManager() {
         <View className="gap-3 sm:flex-row"><View className="flex-1"><AppButton iconName="save" label={busy ? "保存中…" : "保存入口"} disabled={busy} onPress={() => void save()} /></View><AppButton iconName="close" label="取消编辑" variant="secondary" disabled={busy} onPress={() => dirty ? setLeave(() => () => setEditor(null)) : setEditor(null)} /></View>
       </View>
     </Card> : <AppButton iconName="plus" label="添加站外网站" onPress={() => edit()} disabled={busy} />}
-    <View className="mb-3 mt-8 flex-row flex-wrap items-center justify-between gap-3"><AppText className="text-lg font-semibold">已添加的网站</AppText><AppButton compact iconName="refresh" label="重新加载" variant="secondary" disabled={busy || loading || editor !== null} onPress={() => void load()} /></View>
+    <View className="mb-3 mt-8 flex-row flex-wrap items-center justify-between gap-3"><AppText className="text-lg font-semibold">已添加的网站</AppText><AppButton compact iconName="refresh" label="重新加载" variant="secondary" disabled={busy || loading || editor !== null} onPress={() => void load(true)} /></View>
     {loading && <Loading />}
     {!loading && !error && tools.length === 0 && <Notice message="还没有站外网站，可以从一个常用的网站开始。" />}
     {tools.map(tool => <View key={tool.id} className="gap-4 border-b py-6" style={{ borderColor: colors.border }}>

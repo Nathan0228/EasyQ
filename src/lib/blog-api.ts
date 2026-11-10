@@ -5,6 +5,11 @@ import { Platform } from "react-native";
 
 const articles = createReadCache<BlogPost>();
 const reading = createReadCache<ArticleReading>();
+const postPages = createReadCache<PostPage>(30000);
+const toolLists = createReadCache<{ tools: ExternalTool[] }>(30000, 1);
+export const cachedTools = () => toolLists.peek("all");
+const pageKey = (offset: number, limit: number) => `${offset}:${limit}`;
+export const cachedPostPage = (offset = 0, limit = 12) => postPages.peek(pageKey(offset, limit));
 export const cachedArticle = (slug: string) => articles.peek(slug);
 export function prefetchArticle(slug: string) {
   void blogAPI.article(slug).catch(() => { /* Opening the page offers retry on failure. */ });
@@ -46,7 +51,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
 }
 
 export const blogAPI = {
-  list: (offset = 0, limit = 12) => request<PostPage>(`/api/posts?offset=${offset}&limit=${limit}`),
+  list: (offset = 0, limit = 12) => postPages.get(pageKey(offset, limit), () => request<PostPage>(`/api/posts?offset=${offset}&limit=${limit}`)),
   article: (slug: string) => articles.get(slug, () => request<BlogPost>(`/api/posts/${encodeURIComponent(slug)}`)),
   reading: (slug: string) => reading.get(slug, () => request<ArticleReading>(`/api/posts/${encodeURIComponent(slug)}/reading`)),
   login: (username: string, password: string) => request<{ token: string; expiresAt: string }>("/api/admin/login", { method: "POST", body: JSON.stringify({ username, password }) }),
@@ -55,14 +60,24 @@ export const blogAPI = {
   draft: (token: string, id: string) => request<BlogPost>(`/api/admin/posts/${encodeURIComponent(id)}`, {}, token),
   save: async (token: string, data: PostInput, id?: string) => {
     const post = await request<BlogPost>(id ? `/api/admin/posts/${encodeURIComponent(id)}` : "/api/admin/posts", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token);
-    articles.clear(); reading.clear();
+    articles.clear(); reading.clear(); postPages.clear();
     return post;
   },
-  tools: async () => {
-    const data = await request<{ tools: ExternalTool[] }>("/api/tools");
-    if (!Array.isArray(data.tools)) throw new ApiError("工具接口返回格式不正确，请检查 API 域名是否指向 EasyQ 后端。", 502);
-    return data;
+  tools: (refresh = false) => {
+    if (refresh) toolLists.clear();
+    return toolLists.get("all", async () => {
+      const data = await request<{ tools: ExternalTool[] }>("/api/tools");
+      if (!Array.isArray(data.tools)) throw new ApiError("工具接口返回格式不正确，请检查 API 域名是否指向 EasyQ 后端。", 502);
+      return data;
+    });
   },
-  saveTool: (token: string, data: ToolInput, id?: string) => request<ExternalTool>(id ? `/api/admin/tools/${encodeURIComponent(id)}` : "/api/admin/tools", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token),
-  deleteTool: (token: string, tool: ExternalTool) => request<void>(`/api/admin/tools/${encodeURIComponent(tool.id)}?version=${tool.version}`, { method: "DELETE" }, token),
+  saveTool: async (token: string, data: ToolInput, id?: string) => {
+    const tool = await request<ExternalTool>(id ? `/api/admin/tools/${encodeURIComponent(id)}` : "/api/admin/tools", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token);
+    toolLists.clear();
+    return tool;
+  },
+  deleteTool: async (token: string, tool: ExternalTool) => {
+    await request<void>(`/api/admin/tools/${encodeURIComponent(tool.id)}?version=${tool.version}`, { method: "DELETE" }, token);
+    toolLists.clear();
+  },
 };

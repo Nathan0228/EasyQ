@@ -1,27 +1,29 @@
 import { useFocusEffect, type Href } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { View } from "react-native";
 import { AppText } from "@/components/app-text";
 import { Eyebrow, Loading, Notice, PortalScreen } from "@/components/portal-ui";
 import { ToolCard } from "@/components/tool-card";
 import { useApp } from "@/context/app-context";
-import { apiConfigured, blogAPI } from "@/lib/blog-api";
+import { apiConfigured, blogAPI, cachedTools } from "@/lib/blog-api";
 import type { ExternalTool } from "@/types/tool";
 
 export default function Tools() {
   const { colors, language } = useApp();
   const zh = language === "zh";
-  const [tools, setTools] = useState<ExternalTool[]>([]);
-  const [busy, setBusy] = useState(apiConfigured);
+  const [tools, setTools] = useState<ExternalTool[]>(() => cachedTools()?.tools ?? []);
+  const [busy, setBusy] = useState(() => apiConfigured && !cachedTools());
   const [error, setError] = useState("");
+  const requestID = useRef(0);
   const load = useCallback(async () => {
     if (!apiConfigured) return;
-    setBusy(true); setError("");
-    try { setTools((await blogAPI.tools()).tools); }
-    catch (e) { setError(e instanceof Error ? e.message : "加载失败"); }
-    finally { setBusy(false); }
+    const id = ++requestID.current;
+    setBusy(!cachedTools()); setError("");
+    try { const page = await blogAPI.tools(); if (id === requestID.current) setTools(page.tools); }
+    catch (e) { if (id === requestID.current) setError(e instanceof Error ? e.message : "加载失败"); }
+    finally { if (id === requestID.current) setBusy(false); }
   }, []);
-  useFocusEffect(useCallback(() => { void load(); }, [load]));
+  useFocusEffect(useCallback(() => { void load(); return () => { requestID.current++; }; }, [load]));
   return <PortalScreen tabs>
     <View className="pb-9 pt-6">
       <Eyebrow>THE TOOLBOX</Eyebrow>

@@ -1,25 +1,28 @@
 import { useFocusEffect } from "expo-router";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { View } from "react-native";
 import { AppText } from "@/components/app-text";
 import { Eyebrow, Loading, Notice, PortalScreen, PostRow, TextLink } from "@/components/portal-ui";
 import { useApp } from "@/context/app-context";
-import { apiConfigured, blogAPI } from "@/lib/blog-api";
+import { apiConfigured, blogAPI, cachedPostPage } from "@/lib/blog-api";
 import type { BlogPost } from "@/types/blog";
 
 export default function Home() {
   const { colors, language } = useApp();
   const zh = language === "zh";
-  const [posts, setPosts] = useState<BlogPost[]>([]);
-  const [busy, setBusy] = useState(true);
+  const [posts, setPosts] = useState<BlogPost[]>(() => cachedPostPage()?.posts.slice(0, 3) ?? []);
+  const [busy, setBusy] = useState(() => !cachedPostPage());
   const [error, setError] = useState("");
+  const requestID = useRef(0);
   const load = useCallback(async () => {
-    setBusy(true); setError("");
-    try { const page = await blogAPI.list(0, 3); setPosts(page.posts.slice(0, 3)); }
-    catch (e) { setError(e instanceof Error ? e.message : "加载失败"); }
-    finally { setBusy(false); }
+    const id = ++requestID.current;
+    setBusy(!cachedPostPage()); setError("");
+    // Share the first directory page; the homepage still displays only three.
+    try { const page = await blogAPI.list(); if (id === requestID.current) setPosts(page.posts.slice(0, 3)); }
+    catch (e) { if (id === requestID.current) setError(e instanceof Error ? e.message : "加载失败"); }
+    finally { if (id === requestID.current) setBusy(false); }
   }, []);
-  useFocusEffect(useCallback(() => { void load(); }, [load]));
+  useFocusEffect(useCallback(() => { void load(); return () => { requestID.current++; }; }, [load]));
   return <PortalScreen tabs>
     <View className="pb-10 pt-6 sm:pt-12">
       <Eyebrow>WELCOME TO EASYQ</Eyebrow>

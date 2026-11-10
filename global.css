@@ -66,6 +66,23 @@ body {
   display: none;
 }
 
+/* Pointer/touch feedback belongs to the whole tab, not its decorative SVG. */
+.web-bottom-tabs a,
+.web-bottom-tabs a * {
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.web-bottom-tabs a:focus:not(:focus-visible) {
+  outline: none;
+}
+
+.web-bottom-tabs svg {
+  pointer-events: none;
+  outline: none;
+}
+
 .ui-pressable:not(:disabled) {
   transition-property: opacity;
   transition-duration: 150ms;
