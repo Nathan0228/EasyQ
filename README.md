@@ -59,10 +59,17 @@ npm run build:web
 
 Cloudflare Pages 运行的是网页版本，即使在 iPhone Safari 中打开也不会运行原生 iOS 组件。手机网页的底部导航使用 CSS 毛玻璃效果；原生 iOS 应用的底栏由系统绘制。修改网页代码后，需要将新提交推送到 Pages 连接的分支并等待重新部署；手动上传项目时则需重新上传最新的 `dist/`。
 
-1. 在 Cloudflare Pages 中连接项目仓库。
-2. 构建命令设为 `npm run build:web`，输出目录设为 `dist`。
-3. 如果要统一使用部署密码，在 Pages 的构建环境变量中设置 `EXPO_PUBLIC_HISTORY_PASSWORD`，然后重新部署。这个值会出现在客户端代码中。
-4. 部署完成后，在 iPhone Safari 打开 HTTPS 地址，使用分享菜单里的「添加到主屏幕」。
+当前 Workers 项目的设置：
+
+1. 构建命令：`npm run build:web`。
+2. 部署命令：`npx wrangler deploy --config wrangler.jsonc`。
+3. 提交时包含 `cloudflare/worker.mjs` 与 `wrangler.jsonc`；不能只上传 `dist/`，否则没有 API 代理。
+4. `wrangler.jsonc` 的 `API_ORIGIN` 配置真实 Go 后端，当前为 `https://easyq-api.findingai.top`。无需在前端写数据库口令或管理员密码。
+5. 若设置了 `EXPO_PUBLIC_API_MODE=direct`，删除该覆盖并重新构建。原有 `EXPO_PUBLIC_API_URL` 可以保留，默认生产网页会使用同源代理；本地 Expo 开发和原生端仍用该地址直连。
+
+网页的博客、工具与管理员接口统一请求当前网站的 `/api/...`，由 Worker 转发到固定后端。代理保留方法、查询参数、JSON 正文、Bearer 令牌及后端状态码，返回 `Cache-Control: no-store`。代理不转发浏览器 Cookie，也不会跟随后端跳转。首次切换后重新登录管理员以验证会话。
+
+部署后先在 Safari 直接打开 `https://easyq.findingai.top/api/posts?limit=1`，应得到含 `posts` 的 JSON；响应头 `X-EasyQ-API: same-origin` 表示代理生效。若出现 HTML 或 404，说明 Worker 未随前端部署；若为 JSON 502/504，则检查 Worker 到 Go 的连接。浏览器网络面板中的 API 请求应只指向网站主域名。
 
 Expo 的 `web.output: "single"` 只生成一个 `index.html`，`/blog` 和 `/blog/文章-slug` 由客户端路由处理。刷新或分享链接时，Cloudflare 必须返回入口页，保持请求 URL 不变，之后由 Expo Router 加载对应文章。将路径用 301/302 跳转到首页会丢失文章地址。
 
@@ -70,7 +77,7 @@ Expo 的 `web.output: "single"` 只生成一个 `index.html`，`/blog` 和 `/blo
 
 不要重新添加指向 `/index.html` 的 `/*` 或 `/blog/*` 重写规则：Workers 的 HTML 规范化可能将它们判为循环，导致部署失败。原生 SPA 回退已覆盖 `/blog`、文章、工具、后台和问答详情路径，并正常提供实际存在的 JS、CSS、图片资源。
 
-如果实际创建的是 **Pages 项目**，使用上方 Pages 设置；没有顶层 `404.html` 时，Pages 默认提供 SPA 回退，无需 `_redirects`。相关说明：[Workers SPA](https://developers.cloudflare.com/workers/static-assets/routing/single-page-application/)、[Pages SPA](https://developers.cloudflare.com/pages/configuration/serving-pages/#single-page-application-spa-rendering)。
+如果实际创建的是 **Pages 项目**，构建命令仍为 `npm run build:web`、输出目录 `dist`，并设置 `EXPO_PUBLIC_API_MODE=direct` 和 `EXPO_PUBLIC_API_URL` 后重新构建；本仓库的 Worker 代理不会由 Pages 自动部署。没有顶层 `404.html` 时，Pages 默认提供 SPA 回退，无需 `_redirects`。相关说明：[Workers SPA](https://developers.cloudflare.com/workers/static-assets/routing/single-page-application/)、[Pages SPA](https://developers.cloudflare.com/pages/configuration/serving-pages/#single-page-application-spa-rendering)。
 
 修改后需要重新部署前端；只更新 VPS 的 Go 服务无法修复网页路径的 404。部署后在新标签页直接打开 `/blog` 和一篇已发布文章的 `/blog/实际-slug`，刷新后应仍显示对应页面，地址不变。草稿不能公开分享；管理员会话在当前浏览器标签页的 sessionStorage 中保存，刷新会恢复登录；沿用后端返回的 12 小时有效期，不会因刷新续期。退出登录、过期或 API 返回 401 会清除当前会话。关闭标签页后通常需要重新登录；原生端仍仅保存在内存中。本项目没有添加服务工作线程；添加到主屏幕不代表离线可用。
 

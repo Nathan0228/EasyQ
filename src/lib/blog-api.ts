@@ -1,6 +1,7 @@
 import type { ArticleReading, BlogPost, PostInput, PostPage } from "@/types/blog";
 import type { ExternalTool, ToolInput } from "@/types/tool";
 import { createReadCache } from "@/lib/read-cache";
+import { Platform } from "react-native";
 
 const articles = createReadCache<BlogPost>();
 const reading = createReadCache<ArticleReading>();
@@ -9,15 +10,18 @@ export function prefetchArticle(slug: string) {
   void blogAPI.article(slug).catch(() => { /* Opening the page offers retry on failure. */ });
 }
 
-const baseURL = process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
-export const apiConfigured = Boolean(baseURL);
+// Deployed web builds use the Cloudflare proxy, including when an older API URL
+// is still set in the dashboard. Local development and native apps stay direct.
+const sameOrigin = Platform.OS === "web" && !__DEV__ && process.env.EXPO_PUBLIC_API_MODE !== "direct";
+const baseURL = sameOrigin ? "" : process.env.EXPO_PUBLIC_API_URL?.replace(/\/$/, "") ?? "";
+export const apiConfigured = sameOrigin || Boolean(baseURL);
 export const siteAuthor = process.env.EXPO_PUBLIC_SITE_AUTHOR || "EasyQ";
 export class ApiError extends Error {
   constructor(message: string, public status: number) { super(message); }
 }
 
 async function request<T>(path: string, options: RequestInit = {}, token?: string): Promise<T> {
-  if (!baseURL) throw new ApiError("博客服务尚未连接，请配置 EXPO_PUBLIC_API_URL 后重新构建网站。", 503);
+  if (!apiConfigured) throw new ApiError("博客服务尚未连接，请配置 EXPO_PUBLIC_API_URL 后重新构建网站。", 503);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), 15000);
   try {

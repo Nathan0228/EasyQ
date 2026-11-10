@@ -1,9 +1,15 @@
 {
   // Default config for `wrangler deploy`; keep deep links on the SPA entry page.
   "name": "easyq",
+  "main": "./cloudflare/worker.mjs",
   "compatibility_date": "2026-11-03",
+  "vars": {
+    "API_ORIGIN": "https://easyq-api.findingai.top"
+  },
   "assets": {
+    "binding": "ASSETS",
     "directory": "./dist",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api", "/api/*"]
   }
 }
