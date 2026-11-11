@@ -49,8 +49,10 @@ function ArticleContent({ slug }: { slug: string }) {
       </View>
       {Boolean(post.excerpt) && <AppText className="mb-8 border-l-2 pl-5 text-base leading-8" style={{ borderColor: colors.accent, color: colors.secondary }}>{post.excerpt}</AppText>}
       <Markdown content={post.content || ""} />
-      <AppText className="mt-10 text-xs tracking-[3px]" style={{ color: colors.secondary }}>— END —</AppText>
-      <ArticleShare key={post.slug} slug={post.slug} title={post.title} />
+      <View className="mt-10 flex-row items-start gap-4">
+        <View className="h-11 justify-center"><AppText className="text-xs tracking-[3px]" style={{ color: colors.secondary }}>— END —</AppText></View>
+        <ArticleShare key={post.slug} slug={post.slug} title={post.title} />
+      </View>
       <ArticleMore key={post.slug} slug={post.slug} category={post.category} />
     </View>}
   </PortalScreen>;

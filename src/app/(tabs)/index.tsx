@@ -40,7 +40,7 @@ export default function Home() {
     <Eyebrow>RECENT STORIES</Eyebrow>
     <View className="flex-row items-center justify-between gap-4"><AppText accessibilityRole="header" className="text-[28px] font-semibold">{zh ? "最近写下的" : "Latest stories"}</AppText><TextLink href="/blog" label={zh ? "全部文章 →" : "All stories →"} /></View>
     {busy && <Loading />}
-    {Boolean(error) && <Notice message={apiConfigured ? error : (zh ? "博客正在准备中，欢迎稍后再来。" : "The journal is getting ready.")} retry={apiConfigured ? () => void load() : undefined} />}
+    {Boolean(error) && <Notice message={apiConfigured ? (posts.length ? (zh ? "更新失败，正在显示已缓存的文章。" : "Could not refresh. Showing saved stories.") : error) : (zh ? "博客正在准备中，欢迎稍后再来。" : "The journal is getting ready.")} retry={apiConfigured ? () => void load() : undefined} />}
     {!busy && !error && posts.length === 0 && <Notice message={zh ? "第一篇文章还在酝酿中。" : "The first story is on its way."} />}
     {posts.map(post => <PostRow key={post.id} post={post} />)}
   </PortalScreen>;

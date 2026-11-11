@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
-import { Platform, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import { AppIcon } from "@/components/app-icon";
 import { AppText } from "@/components/app-text";
 import { useApp } from "@/context/app-context";
 import { articleShareURL, shareArticle } from "@/lib/article-share";
 
 export function ArticleShare({ slug, title }: { slug: string; title: string }) {
-  const { colors, language, theme } = useApp();
+  const { colors, language } = useApp();
   const zh = language === "zh";
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<"copied" | "error" | null>(null);
@@ -32,7 +32,7 @@ export function ArticleShare({ slug, title }: { slug: string; title: string }) {
     }
   }
 
-  return <View className="mt-5 items-end gap-3">
+  return <View className="min-w-0 flex-1 items-end gap-3">
     <View className="flex-row items-center gap-3">
       {feedback === "copied" && <AppText accessibilityLiveRegion="polite" className="text-xs" style={{ color: colors.accent }}>{zh ? "链接已复制" : "Link copied"}</AppText>}
       <Pressable
@@ -42,8 +42,8 @@ export function ArticleShare({ slug, title }: { slug: string; title: string }) {
         accessibilityState={{ disabled: busy, busy }}
         disabled={busy}
         onPress={() => void handleShare()}
-        className={`glass-button glass-button--${theme} ui-pressable h-11 w-11 items-center justify-center rounded-xl border`}
-        style={{ opacity: busy ? 0.5 : 1, ...(Platform.OS === "web" ? {} : { backgroundColor: colors.surface, borderColor: colors.border }) }}
+        className="h-11 w-11 items-center justify-center"
+        style={{ opacity: busy ? 0.5 : 1 }}
       >
         <AppIcon name="share" size={20} color={colors.text} />
       </Pressable>

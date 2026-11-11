@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppIcon } from "@/components/app-icon";
 import { AppText } from "@/components/app-text";
 import { useApp } from "@/context/app-context";
+import { imageLoadRatio } from "@/lib/image-load-ratio";
 
 export type PreviewImage = { url: string; description: string };
 
@@ -46,8 +47,8 @@ export function ImagePreview({ image, onClose }: { image: PreviewImage; onClose:
             resizeMode="contain"
             style={{ width: "100%", height: "100%", opacity: status === "loaded" ? 1 : 0 }}
             onLoad={event => {
-              const { width: sourceWidth, height: sourceHeight } = event.nativeEvent.source;
-              if (sourceWidth > 0 && sourceHeight > 0) setRatio(sourceWidth / sourceHeight);
+              const loadedRatio = imageLoadRatio(event);
+              if (loadedRatio !== undefined) setRatio(loadedRatio);
               setStatus("loaded");
             }}
             onError={() => setStatus("error")}

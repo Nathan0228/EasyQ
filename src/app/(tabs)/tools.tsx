@@ -35,7 +35,7 @@ export default function Tools() {
       {tools.map(tool => <View key={tool.id} className="mb-4 w-full px-2 sm:w-1/2"><ToolCard name={tool.name} description={tool.description} href={tool.url as Href} iconUrl={tool.iconUrl} external /></View>)}
     </View>
     {busy && <Loading />}
-    {Boolean(error) && <Notice message={zh ? "站外工具暂时无法加载，安静提问仍可使用。" : "External tools are unavailable. Quiet questions still works."} retry={() => void load()} />}
+    {Boolean(error) && <Notice message={tools.length ? (zh ? "更新失败，正在显示已缓存的工具列表，请稍后重试。" : "Could not refresh. Showing the saved tools; please try again later.") : (zh ? "站外工具暂时无法加载，安静提问仍可使用。" : "External tools are unavailable. Quiet questions still works.")} retry={() => void load()} />}
     <AppText className="mt-6 text-xs leading-5" style={{ color: colors.secondary }}>{zh ? "站外网站会在新标签页打开。更多工具将陆续加入。" : "External websites open in a new tab. More tools are on the way."}</AppText>
   </PortalScreen>;
 }

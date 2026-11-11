@@ -4,7 +4,7 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/app-text";
 import { Loading, Notice, PostRow } from "@/components/portal-ui";
 import { useApp } from "@/context/app-context";
-import { blogAPI, prefetchArticle } from "@/lib/blog-api";
+import { blogAPI, cachedReading, prefetchArticle } from "@/lib/blog-api";
 import type { ArticleReading, BlogPost } from "@/types/blog";
 
 function Neighbor({ post, next = false }: { post: BlogPost | null; next?: boolean }) {
@@ -25,13 +25,13 @@ function Neighbor({ post, next = false }: { post: BlogPost | null; next?: boolea
 export function ArticleMore({ slug, category }: { slug: string; category: string }) {
   const { colors, language } = useApp();
   const zh = language === "zh";
-  const [data, setData] = useState<ArticleReading | null>(null);
-  const [busy, setBusy] = useState(true);
+  const [data, setData] = useState<ArticleReading | null>(() => cachedReading(slug) ?? null);
+  const [busy, setBusy] = useState(() => !cachedReading(slug));
   const [error, setError] = useState("");
   const requestID = useRef(0);
   const load = useCallback(async () => {
     const id = ++requestID.current;
-    setBusy(true); setError("");
+    setBusy(!cachedReading(slug)); setError("");
     try {
       const result = await blogAPI.reading(slug);
       if (id === requestID.current) setData(result);

@@ -39,7 +39,9 @@ export default {
       if (value) headers.set(name, value);
     }
     // Do not forward browser cookies or Origin: this is a server-to-server hop.
-    headers.set("Cache-Control", "no-store");
+    // Preserve an explicit refresh for Go's application cache; the proxy itself
+    // never caches API responses, including authenticated requests.
+    headers.set("Cache-Control", /(?:^|,)\s*no-cache\s*(?:,|$)/i.test(request.headers.get("Cache-Control") || "") ? "no-cache" : "no-store");
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), 12000);
     try {
