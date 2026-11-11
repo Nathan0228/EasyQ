@@ -3,6 +3,7 @@ import { useCallback, useRef, useState } from "react";
 import { View } from "react-native";
 import { AppText } from "@/components/app-text";
 import { ArticleMore } from "@/components/article-more";
+import { ArticleShare } from "@/components/article-share";
 import { Markdown } from "@/components/markdown";
 import { Eyebrow, Loading, Notice, PortalScreen, TextLink } from "@/components/portal-ui";
 import { useApp } from "@/context/app-context";
@@ -49,6 +50,7 @@ function ArticleContent({ slug }: { slug: string }) {
       {Boolean(post.excerpt) && <AppText className="mb-8 border-l-2 pl-5 text-base leading-8" style={{ borderColor: colors.accent, color: colors.secondary }}>{post.excerpt}</AppText>}
       <Markdown content={post.content || ""} />
       <AppText className="mt-10 text-xs tracking-[3px]" style={{ color: colors.secondary }}>— END —</AppText>
+      <ArticleShare key={post.slug} slug={post.slug} title={post.title} />
       <ArticleMore key={post.slug} slug={post.slug} category={post.category} />
     </View>}
   </PortalScreen>;

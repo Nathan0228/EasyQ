@@ -18,6 +18,7 @@ import LogoutIcon from "@/assets/svg/easyq/logout.svg";
 import PlusIcon from "@/assets/svg/easyq/plus.svg";
 import RefreshIcon from "@/assets/svg/easyq/refresh.svg";
 import SaveIcon from "@/assets/svg/easyq/save.svg";
+import ShareIcon from "@/assets/svg/easyq/share.svg";
 
 const icons = {
   edit: EditIcon,
@@ -26,6 +27,7 @@ const icons = {
   plus: PlusIcon,
   refresh: RefreshIcon,
   save: SaveIcon,
+  share: ShareIcon,
   arrow: ArrowIcon,
   book: BookIcon,
   check: CheckIcon,

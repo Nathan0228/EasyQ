@@ -93,6 +93,17 @@ body {
   opacity: 0.8;
 }
 
+.article-image { cursor: zoom-in; }
+.article-image:focus-visible {
+  outline: 2px solid #315f4e;
+  outline-offset: 4px;
+}
+.article-image--dark:focus-visible { outline-color: #a7c5b0; }
+.image-preview-close:focus-visible {
+  outline: 2px solid #dbe2dc;
+  outline-offset: 3px;
+}
+
 /* Shared action buttons: quiet tinted glass, fine edges and a restrained lift. */
 .glass-button {
   background-color: rgba(255, 254, 250, 0.72);

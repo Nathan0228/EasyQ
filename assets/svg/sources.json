@@ -448,6 +448,19 @@
       "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-MIT.jsonl.zst",
       "sourceSha256": "90748bda11edbc3861d6b901850fb632d3df27a1b3036b3be7c88bcfef2442ff",
       "localSha256": "cfdff4b79491fb1df1f49aef154172a0b17f68a4523c8a9f85df0b10f7b42ac1"
+    },
+    {
+      "file": "easyq/share.svg",
+      "title": "Share",
+      "svgRepoId": "349869",
+      "source": "https://www.svgrepo.com/svg/349869/share",
+      "downloadUrl": "https://www.svgrepo.com/download/349869/share.svg",
+      "collection": "feather-icons",
+      "license": "MIT",
+      "licenseOwner": "feathericons",
+      "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-MIT.jsonl.zst",
+      "sourceSha256": "9e8afb5267d8988b36eff1b2518490d363f1eeb6136126d4726476d45acced62",
+      "localSha256": "e853eafcd39f87a26b0eeb3627674667a8212d61942c495b71d496a152feed23"
     }
   ]
 }

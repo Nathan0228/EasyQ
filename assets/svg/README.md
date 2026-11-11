@@ -1,6 +1,6 @@
 # 本地 SVG 图标
 
-- `easyq/`：20 个界面图标，统一使用 SVG Repo 收录的 [Feather Icons](https://www.svgrepo.com/collection/feather-icons/)，MIT 授权，作者 Cole Bemis。完整许可见 [easyq/LICENSE.txt](easyq/LICENSE.txt)。
+- `easyq/`：21 个界面图标，统一使用 SVG Repo 收录的 [Feather Icons](https://www.svgrepo.com/collection/feather-icons/)，MIT 授权，作者 Cole Bemis。完整许可见 [easyq/LICENSE.txt](easyq/LICENSE.txt)。
 - `social/`：14 个常见社交平台图标，包括 GitHub、微信、QQ、Telegram、Discord、YouTube、Instagram、Facebook、LinkedIn、Twitter、TikTok、WhatsApp、Reddit 和 Medium。来源及品牌许可见 [social/LICENSE.md](social/LICENSE.md)。
 
 SVG Repo 下载端点本次返回 HTTP 429 / Vercel 验证页，因此资源从公开的 [nyuuzyou/svgrepo 镜像数据集](https://huggingface.co/datasets/nyuuzyou/svgrepo)提取。原站详情页、原下载地址、镜像地址、许可证元数据及修改前后 SHA-256 均记录在 [sources.json](sources.json)，没有将验证页面作为 SVG 保存。镜像中的许可信息与原作者许可一并保留。

@@ -1,5 +1,7 @@
-import { Image, Linking, Platform, ScrollView, View } from "react-native";
+import { useState } from "react";
+import { Image, Linking, Platform, Pressable, ScrollView, View } from "react-native";
 import { AppText } from "@/components/app-text";
+import { ImagePreview, type PreviewImage } from "@/components/image-preview";
 import { useApp } from "@/context/app-context";
 
 // Render a deliberately small Markdown subset as native elements, never executable HTML.
@@ -14,7 +16,8 @@ function Inline({ text }: { text: string }) {
   })}</>;
 }
 export function Markdown({ content }: { content: string }) {
-  const { colors } = useApp();
+  const { colors, language, theme } = useApp();
+  const [preview, setPreview] = useState<PreviewImage | null>(null);
   const lines = content.replace(/\r/g, "").split("\n");
   const blocks: React.ReactNode[] = [];
   for (let i = 0; i < lines.length; i++) {
@@ -27,7 +30,22 @@ export function Markdown({ content }: { content: string }) {
       continue;
     }
     const image = line.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/);
-    if (image) { blocks.push(<View key={i} className="my-5"><Image accessibilityLabel={image[1]} source={{ uri: image[2] }} style={{ width: "100%", aspectRatio: 1.6, borderRadius: 12 }} resizeMode="contain" />{Boolean(image[1]) && <AppText className="mt-2 text-center text-xs" style={{ color: colors.secondary }}>{image[1]}</AppText>}</View>); continue; }
+    if (image) {
+      const [, description, url] = image;
+      blocks.push(<View key={i} className="my-5">
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={description ? `${language === "zh" ? "查看大图" : "View image"}: ${description}` : (language === "zh" ? "查看大图" : "View image")}
+          accessibilityHint={language === "zh" ? "打开图片预览" : "Open image preview"}
+          onPress={() => setPreview({ url, description })}
+          className={`article-image article-image--${theme} ui-pressable rounded-xl`}
+        >
+          <Image accessible={false} source={{ uri: url }} style={{ width: "100%", aspectRatio: 1.6, borderRadius: 12 }} resizeMode="contain" />
+        </Pressable>
+        {Boolean(description) && <AppText className="mt-2 text-center text-xs" style={{ color: colors.secondary }}>{description}</AppText>}
+      </View>);
+      continue;
+    }
     const heading = line.match(/^(#{1,3})\s+(.+)$/);
     if (heading) { blocks.push(<AppText key={i} accessibilityRole="header" className="mb-3 mt-8 font-semibold" style={{ fontSize: heading[1].length === 1 ? 28 : heading[1].length === 2 ? 23 : 19, lineHeight: 34 }}><Inline text={heading[2]} /></AppText>); continue; }
     if (/^---+$/.test(line)) { blocks.push(<View key={i} className="my-7 border-t" style={{ borderColor: colors.border }} />); continue; }
@@ -35,6 +53,6 @@ export function Markdown({ content }: { content: string }) {
     const bullet = line.match(/^[-*]\s+(.+)/);
     blocks.push(<AppText key={i} selectable className="mb-3 text-base leading-8" style={quote ? { borderLeftWidth: 3, borderLeftColor: colors.accent, paddingLeft: 18, color: colors.secondary } : undefined}><Inline text={quote ? line.slice(2) : bullet ? "•  " + bullet[1] : line} /></AppText>);
   }
-  return <View>{blocks}</View>;
+  return <View>{blocks}{preview && <ImagePreview key={preview.url} image={preview} onClose={() => setPreview(null)} />}</View>;
 }
 
