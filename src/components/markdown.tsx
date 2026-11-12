@@ -2,17 +2,19 @@ import { useState } from "react";
 import { Image, Linking, Platform, Pressable, ScrollView, View } from "react-native";
 import { AppText } from "@/components/app-text";
 import { ImagePreview, type PreviewImage } from "@/components/image-preview";
+import { MathFormula } from "@/components/math-formula";
 import { useApp } from "@/context/app-context";
+import { codeFence, inlineParts, readDisplayMath } from "@/lib/markdown-math";
 
-// Render a deliberately small Markdown subset as native elements, never executable HTML.
+// Markdown stays text and React elements; only the math renderer produces typeset markup.
 function Inline({ text }: { text: string }) {
   const { colors } = useApp();
-  return <>{text.split(/(\*\*[^*]+\*\*|\x60[^\x60]+\x60|\[[^\]]+\]\(https?:\/\/[^\s)]+\))/g).map((part, i) => {
-    const link = part.match(/^\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)$/);
-    if (link) return <AppText key={i} accessibilityRole="link" style={{ color: colors.accent, textDecorationLine: "underline" }} onPress={() => void Linking.openURL(link[2]).catch(() => {})}>{link[1]}</AppText>;
-    if (part.startsWith("**") && part.endsWith("**")) return <AppText key={i} style={{ fontWeight: "700" }}>{part.slice(2, -2)}</AppText>;
-    if (part.charCodeAt(0) === 96) return <AppText key={i} style={{ backgroundColor: colors.surfaceSoft, fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace" }}>{part.slice(1, -1)}</AppText>;
-    return part;
+  return <>{inlineParts(text).map((part, i) => {
+    if (part.kind === "link") return <AppText key={i} accessibilityRole="link" style={{ color: colors.accent, textDecorationLine: "underline" }} onPress={() => void Linking.openURL(part.href).catch(() => {})}>{part.text}</AppText>;
+    if (part.kind === "strong") return <AppText key={i} style={{ fontWeight: "700" }}><Inline text={part.text} /></AppText>;
+    if (part.kind === "code") return <AppText key={i} style={{ backgroundColor: colors.surfaceSoft, fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace" }}>{part.text}</AppText>;
+    if (part.kind === "math") return <MathFormula key={i} tex={part.tex} source={part.source} />;
+    return part.text;
   })}</>;
 }
 export function Markdown({ content }: { content: string }) {
@@ -23,10 +25,21 @@ export function Markdown({ content }: { content: string }) {
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
     if (!line.trim()) continue;
-    if (line.startsWith("```")) {
+    const fence = codeFence(line);
+    if (fence) {
       const code = [];
-      while (++i < lines.length && !lines[i].startsWith("```")) code.push(lines[i]);
+      while (++i < lines.length) {
+        const closing = lines[i].trim();
+        if (closing.length >= fence.length && [...closing].every(char => char === fence[0])) break;
+        code.push(lines[i]);
+      }
       blocks.push(<ScrollView key={i} horizontal className="my-4 rounded-xl p-5" style={{ backgroundColor: colors.surfaceSoft }}><AppText selectable style={{ fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace", fontSize: 13, lineHeight: 22 }}>{code.join("\n")}</AppText></ScrollView>);
+      continue;
+    }
+    const formula = readDisplayMath(lines, i);
+    if (formula) {
+      blocks.push(<MathFormula key={i} tex={formula.tex} source={formula.source} display />);
+      i = formula.end;
       continue;
     }
     const image = line.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/);

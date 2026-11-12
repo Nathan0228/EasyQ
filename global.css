@@ -104,6 +104,24 @@ body {
   outline-offset: 3px;
 }
 
+.markdown-math-block {
+  max-width: 100%;
+  margin: 1rem 0;
+  padding: 0.25rem 0;
+  overflow-x: auto;
+}
+
+.markdown-math-block .katex-display {
+  width: max-content;
+  min-width: 100%;
+  margin: 0;
+}
+
+.markdown-math-source {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
 /* Shared action buttons: quiet tinted glass, fine edges and a restrained lift. */
 .glass-button {
   background-color: rgba(255, 254, 250, 0.72);
