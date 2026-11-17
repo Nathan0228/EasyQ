@@ -27,8 +27,8 @@ function videoSource(raw: string) {
       const bvid = path.match(/\/video\/(BV[\w]+)/i)?.[1] || url.searchParams.get("bvid");
       if (bvid && /^BV[\w]+$/i.test(bvid)) {
         const page = url.searchParams.get("p") || url.searchParams.get("page");
-        const params = new URLSearchParams({ bvid });
-        if (page && /^\d+$/.test(page)) params.set("page", page);
+        const params = new URLSearchParams({ bvid, autoplay: "0" });
+        if (page && /^\d+$/.test(page)) params.set("p", page);
         return { url: url.href, embedUrl: `https://player.bilibili.com/player.html?${params}` };
       }
     }

@@ -8,7 +8,7 @@ export function VideoEmbed({ video }: { video: MarkdownVideo }) {
       src={video.embedUrl}
       title={video.title}
       loading="lazy"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+      allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
       allowFullScreen
       referrerPolicy="strict-origin-when-cross-origin"
       style={{ display: "block", width: "100%", aspectRatio: "16 / 9", border: 0, borderRadius: 12, backgroundColor: colors.surfaceSoft }}
