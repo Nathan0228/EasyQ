@@ -1,5 +1,4 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
-import { useColorScheme } from "react-native";
 
 import { isQuestion } from "@/lib/backup";
 import { getStored, setStored, STORAGE_KEYS } from "@/lib/storage";
@@ -66,11 +65,10 @@ function makeId() {
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
-  const systemTheme = useColorScheme();
   const [ready, setReady] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [language, updateLanguage] = useState<Language>("zh");
-  const [theme, updateTheme] = useState<Theme>(systemTheme === "dark" ? "dark" : "light");
+  const [theme, updateTheme] = useState<Theme>("light");
   const [localPassword, setLocalPassword] = useState<string | null>(null);
   const questionsRef = useRef<Question[]>([]);
 

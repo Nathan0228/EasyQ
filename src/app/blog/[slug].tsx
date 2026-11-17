@@ -8,6 +8,7 @@ import { Markdown } from "@/components/markdown";
 import { Eyebrow, Loading, Notice, PortalScreen, TextLink } from "@/components/portal-ui";
 import { useApp } from "@/context/app-context";
 import { blogAPI, cachedArticle, siteAuthor } from "@/lib/blog-api";
+import { useArticleReadingPosition } from "@/lib/use-article-reading-position";
 import type { BlogPost } from "@/types/blog";
 
 export default function Article() {
@@ -20,6 +21,7 @@ function ArticleContent({ slug }: { slug: string }) {
   const [post, setPost] = useState<BlogPost | null>(() => cachedArticle(slug) ?? null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(() => !cachedArticle(slug));
+  const readingPosition = useArticleReadingPosition(post);
   const requestID = useRef(0);
   const load = useCallback(async () => {
     const id = ++requestID.current;
@@ -34,7 +36,7 @@ function ArticleContent({ slug }: { slug: string }) {
     } finally { if (id === requestID.current) setBusy(false); }
   }, [slug]);
   useFocusEffect(useCallback(() => { void load(); return () => { requestID.current++; }; }, [load]));
-  return <PortalScreen backToTop={Boolean(post)}>
+  return <PortalScreen backToTop={Boolean(post)} {...readingPosition}>
     <TextLink href="/blog" label={language === "zh" ? "← 所有文章" : "← All stories"} />
     {busy && <Loading />}
     {Boolean(error) && <Notice message={error} retry={() => void load()} />}

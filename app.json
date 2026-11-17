@@ -16,7 +16,7 @@
     "web": {
       "bundler": "metro",
       "output": "single",
-      "favicon": "./assets/images/easyq-logo-earth.png",
+      "favicon": "./public/melogo.png",
       "name": "EasyQ",
       "shortName": "EasyQ",
       "lang": "zh-CN",

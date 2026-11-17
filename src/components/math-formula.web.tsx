@@ -1,9 +1,10 @@
-import "katex/dist/katex.min.css";
 import { renderToString } from "katex";
 import { useMemo } from "react";
+import { useApp } from "@/context/app-context";
 import type { MathFormulaProps } from "./math-formula";
 
 export function MathFormula({ tex, source, display = false }: MathFormulaProps) {
+  const { colors } = useApp();
   const html = useMemo(() => {
     if (tex.length > 20000) return;
     try {
@@ -24,5 +25,7 @@ export function MathFormula({ tex, source, display = false }: MathFormulaProps) 
   const content = html
     ? <span dangerouslySetInnerHTML={{ __html: html }} />
     : <code className="markdown-math-source">{source}</code>;
-  return display ? <div className="markdown-math-block">{content}</div> : content;
+  return display
+    ? <div className="markdown-math-block" style={{ color: colors.text }}>{content}</div>
+    : <span style={{ color: colors.text }}>{content}</span>;
 }

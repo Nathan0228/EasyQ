@@ -66,21 +66,25 @@ body {
   display: none;
 }
 
-/* Pointer/touch feedback belongs to the whole tab, not its decorative SVG. */
+/* Suppress pointer outlines and touch highlights on SVGs and their controls. */
+svg,
+:where(a[href], button, [role="button"], [role="link"], [role="radio"], [role="tab"], .ui-pressable):has(svg) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+svg:focus:not(:focus-visible),
+:where(a[href], button, [role="button"], [role="link"], [role="radio"], [role="tab"], .ui-pressable):has(svg):focus:not(:focus-visible) {
+  outline: none;
+}
+
+svg[aria-hidden="true"] {
+  pointer-events: none;
+}
+
 .web-bottom-tabs a,
 .web-bottom-tabs a * {
-  -webkit-tap-highlight-color: transparent;
   -webkit-user-select: none;
   user-select: none;
-}
-
-.web-bottom-tabs a:focus:not(:focus-visible) {
-  outline: none;
-}
-
-.web-bottom-tabs svg {
-  pointer-events: none;
-  outline: none;
 }
 
 .ui-pressable:not(:disabled) {
@@ -102,6 +106,15 @@ body {
 .image-preview-close:focus-visible {
   outline: 2px solid #dbe2dc;
   outline-offset: 3px;
+}
+
+.article-share-button:focus-visible {
+  outline: 2px solid #315f4e;
+  outline-offset: -3px;
+}
+
+.article-share-button--dark:focus-visible {
+  outline-color: #a7c5b0;
 }
 
 .markdown-math-block {
@@ -223,7 +236,6 @@ body {
   }
 
   .web-bottom-tabs a {
-    -webkit-tap-highlight-color: transparent;
     transition-property: opacity;
     transition-duration: 150ms;
     transition-timing-function: ease-out;

@@ -6,7 +6,7 @@ import { useApp } from "@/context/app-context";
 import { articleShareURL, shareArticle } from "@/lib/article-share";
 
 export function ArticleShare({ slug, title }: { slug: string; title: string }) {
-  const { colors, language } = useApp();
+  const { colors, language, theme } = useApp();
   const zh = language === "zh";
   const [busy, setBusy] = useState(false);
   const [feedback, setFeedback] = useState<"copied" | "error" | null>(null);
@@ -42,7 +42,7 @@ export function ArticleShare({ slug, title }: { slug: string; title: string }) {
         accessibilityState={{ disabled: busy, busy }}
         disabled={busy}
         onPress={() => void handleShare()}
-        className="h-11 w-11 items-center justify-center"
+        className={`article-share-button article-share-button--${theme} h-11 w-11 items-center justify-center`}
         style={{ opacity: busy ? 0.5 : 1 }}
       >
         <AppIcon name="share" size={20} color={colors.text} />

@@ -22,3 +22,11 @@ export async function setStored(key: string, value: string): Promise<void> {
   }
   await AsyncStorage.setItem(key, value);
 }
+
+export async function removeStored(key: string): Promise<void> {
+  if (Platform.OS === "web") {
+    if (typeof window !== "undefined") window.localStorage.removeItem(key);
+    return;
+  }
+  await AsyncStorage.removeItem(key);
+}

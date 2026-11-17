@@ -1,10 +1,13 @@
 import { useState } from "react";
-import { Image, Linking, Platform, Pressable, ScrollView, View } from "react-native";
+import { Image, Linking, Platform, Pressable, View } from "react-native";
 import { AppText } from "@/components/app-text";
+import { CodeBlock } from "@/components/code-block";
 import { ImagePreview, type PreviewImage } from "@/components/image-preview";
 import { MathFormula } from "@/components/math-formula";
+import { VideoEmbed } from "@/components/video-embed";
 import { useApp } from "@/context/app-context";
 import { codeFence, inlineParts, readDisplayMath } from "@/lib/markdown-math";
+import { readVideoLine } from "@/lib/markdown-video";
 
 // Markdown stays text and React elements; only the math renderer produces typeset markup.
 function Inline({ text }: { text: string }) {
@@ -27,19 +30,25 @@ export function Markdown({ content }: { content: string }) {
     if (!line.trim()) continue;
     const fence = codeFence(line);
     if (fence) {
-      const code = [];
+      const info = line.trimStart().slice(fence.length).trim().split(/\s+/)[0]?.slice(0, 32) || "";
+      const code: string[] = [];
       while (++i < lines.length) {
         const closing = lines[i].trim();
         if (closing.length >= fence.length && [...closing].every(char => char === fence[0])) break;
         code.push(lines[i]);
       }
-      blocks.push(<ScrollView key={i} horizontal className="my-4 rounded-xl p-5" style={{ backgroundColor: colors.surfaceSoft }}><AppText selectable style={{ fontFamily: Platform.OS === "ios" ? "Menlo" : "monospace", fontSize: 13, lineHeight: 22 }}>{code.join("\n")}</AppText></ScrollView>);
+      blocks.push(<CodeBlock key={i} code={code.join("\n")} info={info} />);
       continue;
     }
     const formula = readDisplayMath(lines, i);
     if (formula) {
       blocks.push(<MathFormula key={i} tex={formula.tex} source={formula.source} display />);
       i = formula.end;
+      continue;
+    }
+    const video = readVideoLine(line);
+    if (video) {
+      blocks.push(<VideoEmbed key={i} video={video} />);
       continue;
     }
     const image = line.match(/^!\[([^\]]*)\]\((https?:\/\/[^\s)]+)\)$/);
@@ -62,6 +71,17 @@ export function Markdown({ content }: { content: string }) {
     const heading = line.match(/^(#{1,3})\s+(.+)$/);
     if (heading) { blocks.push(<AppText key={i} accessibilityRole="header" className="mb-3 mt-8 font-semibold" style={{ fontSize: heading[1].length === 1 ? 28 : heading[1].length === 2 ? 23 : 19, lineHeight: 34 }}><Inline text={heading[2]} /></AppText>); continue; }
     if (/^---+$/.test(line)) { blocks.push(<View key={i} className="my-7 border-t" style={{ borderColor: colors.border }} />); continue; }
+    const task = line.match(/^\s{0,3}[-*+]\s+\[([ xX])\]\s+(.+)$/);
+    if (task) {
+      const checked = task[1].toLowerCase() === "x";
+      blocks.push(<View key={i} className="mb-3 flex-row items-start gap-3" accessible accessibilityRole="checkbox" accessibilityState={{ checked }} accessibilityLabel={task[2]}>
+        <View className="mt-[7px] h-[18px] w-[18px] items-center justify-center rounded border" style={{ borderColor: checked ? colors.accent : colors.secondary, backgroundColor: checked ? colors.accent : "transparent" }}>
+          {checked && <AppText style={{ color: colors.background, fontSize: 13, lineHeight: 16 }}>✓</AppText>}
+        </View>
+        <AppText selectable className="flex-1 text-base leading-8" style={checked ? { color: colors.secondary, textDecorationLine: "line-through" } : undefined}><Inline text={task[2]} /></AppText>
+      </View>);
+      continue;
+    }
     const quote = line.startsWith("> ");
     const bullet = line.match(/^[-*]\s+(.+)/);
     blocks.push(<AppText key={i} selectable className="mb-3 text-base leading-8" style={quote ? { borderLeftWidth: 3, borderLeftColor: colors.accent, paddingLeft: 18, color: colors.secondary } : undefined}><Inline text={quote ? line.slice(2) : bullet ? "•  " + bullet[1] : line} /></AppText>);

@@ -461,6 +461,19 @@
       "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-MIT.jsonl.zst",
       "sourceSha256": "9e8afb5267d8988b36eff1b2518490d363f1eeb6136126d4726476d45acced62",
       "localSha256": "e853eafcd39f87a26b0eeb3627674667a8212d61942c495b71d496a152feed23"
+    },
+    {
+      "file": "easyq/mail.svg",
+      "title": "Mail",
+      "svgRepoId": "349806",
+      "source": "https://www.svgrepo.com/svg/349806/mail",
+      "downloadUrl": "https://www.svgrepo.com/download/349806/mail.svg",
+      "collection": "feather-icons",
+      "license": "MIT",
+      "licenseOwner": "feathericons",
+      "retrievedFrom": "https://huggingface.co/datasets/nyuuzyou/svgrepo/resolve/main/svgrepo-MIT.jsonl.zst",
+      "sourceSha256": "7f759aa96a1d0e756ad697a2e86c0dce7cd48106247dcc2e54ff2e68a102fae8",
+      "localSha256": "b9e3085ef56204d2e85b8f8399e1bc64e9510492b3d23b90b05972f64352e22e"
     }
   ]
 }

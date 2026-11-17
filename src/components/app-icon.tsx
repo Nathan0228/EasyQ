@@ -8,6 +8,7 @@ import HomeIcon from "@/assets/svg/easyq/home.svg";
 import LockIcon from "@/assets/svg/easyq/lock.svg";
 import MessageIcon from "@/assets/svg/easyq/message.svg";
 import MoonIcon from "@/assets/svg/easyq/moon.svg";
+import MoreIcon from "@/assets/svg/easyq/more.svg";
 import SunIcon from "@/assets/svg/easyq/sun.svg";
 import ToolsIcon from "@/assets/svg/easyq/tools.svg";
 import TrashIcon from "@/assets/svg/easyq/trash.svg";
@@ -19,6 +20,7 @@ import PlusIcon from "@/assets/svg/easyq/plus.svg";
 import RefreshIcon from "@/assets/svg/easyq/refresh.svg";
 import SaveIcon from "@/assets/svg/easyq/save.svg";
 import ShareIcon from "@/assets/svg/easyq/share.svg";
+import { decorativeSvgProps } from "@/lib/decorative-svg";
 
 const icons = {
   edit: EditIcon,
@@ -38,6 +40,7 @@ const icons = {
   lock: LockIcon,
   message: MessageIcon,
   moon: MoonIcon,
+  more: MoreIcon,
   sun: SunIcon,
   tools: ToolsIcon,
   trash: TrashIcon,
@@ -52,5 +55,5 @@ export function AppIcon({ name, size = 20, color = "currentColor" }: {
   color?: string;
 }) {
   const Icon = icons[name];
-  return <Icon width={size} height={size} color={color} accessible={false} focusable={false} />;
+  return <Icon width={size} height={size} color={color} {...decorativeSvgProps} />;
 }

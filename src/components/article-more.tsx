@@ -11,9 +11,10 @@ function Neighbor({ post, next = false }: { post: BlogPost | null; next?: boolea
   const { colors, language } = useApp();
   const zh = language === "zh";
   const label = next ? (zh ? "下一篇 →" : "Next →") : (zh ? "← 上一篇" : "← Previous");
+  const textAlign = next ? "right" : undefined;
   const content = <>
-    <AppText className="mb-3 text-xs font-semibold" style={{ color: post ? colors.accent : colors.secondary }}>{label}</AppText>
-    <AppText numberOfLines={3} className="text-base font-semibold leading-6" style={{ color: post ? colors.text : colors.secondary }}>{post?.title || (next ? (zh ? "已是最新文章" : "This is the newest story") : (zh ? "已是最早文章" : "This is the first story"))}</AppText>
+    <AppText className="mb-3 text-xs font-semibold" style={{ color: post ? colors.accent : colors.secondary, textAlign }}>{label}</AppText>
+    <AppText numberOfLines={3} className="text-base font-semibold leading-6" style={{ color: post ? colors.text : colors.secondary, textAlign }}>{post?.title || (next ? (zh ? "已是最新文章" : "This is the newest story") : (zh ? "已是最早文章" : "This is the first story"))}</AppText>
   </>;
   return <View className="flex-1">
     {post ? <Link href={{ pathname: "/blog/[slug]", params: { slug: post.slug } }} asChild>

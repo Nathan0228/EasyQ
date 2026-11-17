@@ -12,6 +12,7 @@ import TwitterIcon from "@/assets/svg/social/twitter.svg";
 import WechatIcon from "@/assets/svg/social/wechat.svg";
 import WhatsappIcon from "@/assets/svg/social/whatsapp.svg";
 import YoutubeIcon from "@/assets/svg/social/youtube.svg";
+import { decorativeSvgProps } from "@/lib/decorative-svg";
 
 const icons = {
   github: GithubIcon,
@@ -39,5 +40,5 @@ export function SocialIcon({ name, size = 20, color = "currentColor" }: {
   color?: string;
 }) {
   const Icon = icons[name];
-  return <Icon width={size} height={size} color={color} accessible={false} focusable={false} />;
+  return <Icon width={size} height={size} color={color} {...decorativeSvgProps} />;
 }

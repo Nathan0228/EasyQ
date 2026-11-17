@@ -91,7 +91,7 @@ export const blogAPI = {
   reading: (slug: string) => reading.get(slug, () => request<ArticleReading>(`/api/posts/${encodeURIComponent(slug)}/reading`)),
   login: (username: string, password: string) => request<{ token: string; expiresAt: string }>("/api/admin/login", { method: "POST", body: JSON.stringify({ username, password }) }),
   logout: (token: string) => request<void>("/api/admin/logout", { method: "POST" }, token),
-  drafts: (token: string, offset = 0) => request<PostPage>(`/api/admin/posts?offset=${offset}`, {}, token),
+  drafts: (token: string, offset = 0, limit = 12) => request<PostPage>(`/api/admin/posts?offset=${offset}&limit=${limit}`, {}, token),
   draft: (token: string, id: string) => request<BlogPost>(`/api/admin/posts/${encodeURIComponent(id)}`, {}, token),
   save: async (token: string, data: PostInput, id?: string) => {
     const post = await request<BlogPost>(id ? `/api/admin/posts/${encodeURIComponent(id)}` : "/api/admin/posts", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token);
