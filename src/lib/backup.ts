@@ -1,8 +1,4 @@
-import * as DocumentPicker from "expo-document-picker";
-import { File, Paths } from "expo-file-system";
-import * as Sharing from "expo-sharing";
-import { Platform } from "react-native";
-
+import { openBackupFile, saveBackupFile } from "@/lib/backup-file";
 import type { Backup, Question } from "@/types/question";
 
 const MAX_BACKUP_BYTES = 5_000_000;
@@ -68,38 +64,10 @@ export function parseBackup(raw: string): Question[] {
 export async function exportBackup(questions: Question[]): Promise<void> {
   const content = JSON.stringify(makeBackup(questions), null, 2);
   const name = `easyq-backup-${new Date().toISOString().slice(0, 10)}.json`;
-
-  if (Platform.OS === "web") {
-    const blob = new Blob([content], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = name;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-    return;
-  }
-
-  const file = new File(Paths.cache, name);
-  await file.write(content);
-  if (!(await Sharing.isAvailableAsync())) throw new Error("Sharing is unavailable");
-  await Sharing.shareAsync(file.uri, { mimeType: "application/json", dialogTitle: "EasyQ backup" });
+  await saveBackupFile(content, name, "EasyQ backup");
 }
 
 export async function importBackup(): Promise<Question[] | null> {
-  const result = await DocumentPicker.getDocumentAsync({
-    type: "application/json",
-    copyToCacheDirectory: true,
-    multiple: false,
-    base64: false,
-  });
-  if (result.canceled) return null;
-  const asset = result.assets[0];
-  if (asset.size && asset.size > MAX_BACKUP_BYTES) throw new Error("Backup file is too large");
-  const raw = Platform.OS === "web"
-    ? asset.file ? await asset.file.text() : await (await fetch(asset.uri)).text()
-    : await new File(asset.uri).text();
-  return parseBackup(raw);
+  const raw = await openBackupFile(MAX_BACKUP_BYTES);
+  return raw === null ? null : parseBackup(raw);
 }

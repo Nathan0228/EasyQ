@@ -74,9 +74,7 @@ export default function Home() {
               accessibilityRole="header"
               className="text-xl font-semibold leading-7 sm:text-[30px] sm:leading-10"
             >
-              {zh
-                ? "“点子王”的想法和实现"
-                : "Ideas and projects by the “Idea Maker”"}
+              {zh ? "“点子王”的想法和实现" : "Idea is Idea”"}
             </AppText>
           </View>
         </View>

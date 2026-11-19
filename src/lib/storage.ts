@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
   language: "easyq.language.v1",
   theme: "easyq.theme.v1",
   passcode: "easyq.passcode.v1",
+  traval: "easyq.traval.v1",
 } as const;
 
 export async function getStored(key: string): Promise<string | null> {

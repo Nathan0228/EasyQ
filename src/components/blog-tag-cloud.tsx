@@ -24,33 +24,26 @@ function TagLink({ tag, largest }: { tag: Tag; largest: number }) {
   const { theme, language } = useApp();
   const dark = theme === "dark";
   const weight = Math.sqrt((tag.count - 1) / Math.max(1, largest - 1));
-  const color = `hsl(${tag.hue}, 38%, ${dark ? 85 : 24}%)`;
+  const color = `hsl(${tag.hue}, 52%, ${dark ? 78 : 29}%)`;
   const label = language === "zh" ? `${tag.name}，${tag.count} 篇` : `${tag.name}, ${tag.count} ${tag.count === 1 ? "story" : "stories"}`;
   return (
     <Link href={{ pathname: "/tags", params: { tag: tag.name } }} asChild>
       <Pressable
         accessibilityRole="link"
         accessibilityLabel={label}
-        className="blog-tag ui-pressable max-w-full flex-row items-center justify-center gap-1.5 rounded-full border"
-        style={{
-          minHeight: 44 + 12 * weight,
-          paddingHorizontal: 10 + 8 * weight,
-          paddingVertical: 7,
-          backgroundColor: `hsl(${tag.hue}, 40%, ${dark ? 20 : 92}%)`,
-          borderColor: `hsl(${tag.hue}, 30%, ${dark ? 34 : 81}%)`,
-        }}
+        className="blog-tag ui-pressable min-h-11 min-w-11 max-w-full flex-row items-center justify-center gap-1 rounded-lg px-2"
       >
-        <AppText numberOfLines={1} className="shrink font-semibold" style={{ color, fontSize: 13 + 11 * weight }}>
+        <AppText numberOfLines={1} className="shrink font-semibold" style={{ color, fontSize: 12 + 7 * weight }}>
           {tag.name}
         </AppText>
-        <AppText className="text-xs" style={{ color }}>{tag.count}</AppText>
+        <AppText className="text-[10px]" style={{ color }}>{tag.count}</AppText>
       </Pressable>
     </Link>
   );
 }
 
 export function BlogTagCloud() {
-  const { colors, language } = useApp();
+  const { language } = useApp();
   const { width, fontScale } = useWindowDimensions();
   const zh = language === "zh";
   const { posts, loading, failed, reload } = usePostArchive();
@@ -62,11 +55,12 @@ export function BlogTagCloud() {
   const above = outer.filter((_, index) => index % 2 === 1);
   const below = outer.filter((_, index) => index % 2 === 0);
 
+  if (!largest && !loading && !failed) return null;
+
   return (
-    <View className="mb-12 rounded-3xl border p-4 sm:p-8" style={{ backgroundColor: colors.surface, borderColor: colors.border }}>
-      <AppText accessibilityRole="header" className="mb-4 text-xl font-semibold">{zh ? "文章标签" : "Explore by tag"}</AppText>
+    <View className="mb-8">
       {largest && (
-        <View className="gap-2 py-3">
+        <View>
           {above.length > 0 && <View className="flex-row flex-wrap justify-center gap-2">
             {above.map(tag => <TagLink key={tag.name} tag={tag} largest={largest.count} />)}
           </View>}
@@ -82,9 +76,6 @@ export function BlogTagCloud() {
       )}
       {loading && <Loading />}
       {failed && <Notice message={zh ? "暂时无法更新文章标签。" : "Could not refresh tags."} retry={() => void reload()} />}
-      {!largest && !loading && !failed && (
-        <AppText className="text-sm" style={{ color: colors.secondary }}>{zh ? "暂无文章标签。" : "No tags yet."}</AppText>
-      )}
     </View>
   );
 }
