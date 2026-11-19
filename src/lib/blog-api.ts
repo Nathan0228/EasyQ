@@ -38,10 +38,16 @@ const articles = createReadCache<BlogPost>();
 const reading = createReadCache<ArticleReading>();
 // Only public metadata is persisted. Article bodies, drafts, and tokens stay out.
 const postPages = createReadCache<PostPage>(60000, 20, { maxAge: 86400000, storage: publicStorage("posts"), validate: isPostPage });
+const postArchive = createReadCache<BlogPost[]>(60000, 1, {
+  maxAge: 86400000,
+  storage: publicStorage("post-archive"),
+  validate: (value): value is BlogPost[] => Array.isArray(value) && value.every(isPublicPost),
+});
 const toolLists = createReadCache<{ tools: ExternalTool[] }>(60000, 1, { maxAge: 86400000, storage: publicStorage("tools"), validate: isToolList });
 export const cachedTools = () => toolLists.peek("all");
 const pageKey = (offset: number, limit: number) => `${offset}:${limit}`;
 export const cachedPostPage = (offset = 0, limit = 12) => postPages.peek(pageKey(offset, limit));
+export const cachedPostArchive = () => postArchive.peek("published");
 export const cachedArticle = (slug: string) => articles.peek(slug);
 export const cachedReading = (slug: string) => reading.peek(slug);
 export function prefetchArticle(slug: string) {
@@ -76,17 +82,40 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
   } finally { clearTimeout(timer); }
 }
 
+async function fetchPostPage(offset: number, limit: number) {
+  const page = await request<PostPage>(`/api/posts?offset=${offset}&limit=${limit}`);
+  if (!isPostPage(page)) throw new ApiError("文章列表返回格式不正确。", 502);
+  return page;
+}
+
 export const blogAPI = {
   list: (offset = 0, limit = 12) => postPages.get(pageKey(offset, limit), async () => {
-    const page = await request<PostPage>(`/api/posts?offset=${offset}&limit=${limit}`);
-    if (!isPostPage(page)) throw new ApiError("文章列表返回格式不正确。", 502);
+    const page = await fetchPostPage(offset, limit);
     const previous = cachedPostPage(0, limit);
     if (!offset && (!previous || JSON.stringify(previous) !== JSON.stringify(page))) {
       // Insertions/deletions shift offsets; old later pages cannot be reused.
       postPages.invalidate(key => key !== pageKey(0, limit));
+      if (previous) postArchive.clear();
     }
     return page;
   }),
+  archive: async () => {
+    // Share the first page with the homepage, then read the remaining summaries in larger batches.
+    const first = await blogAPI.list();
+    return postArchive.get("published", async () => {
+      const posts = new Map(first.posts.map(post => [post.id, post]));
+      let offset = first.posts.length;
+      let hasMore = first.hasMore;
+      while (hasMore) {
+        const page = await fetchPostPage(offset, 50);
+        if (!page.posts.length && page.hasMore) throw new ApiError("文章列表分页不完整。", 502);
+        for (const post of page.posts) posts.set(post.id, post);
+        offset += page.posts.length;
+        hasMore = page.hasMore;
+      }
+      return [...posts.values()];
+    });
+  },
   article: (slug: string) => articles.get(slug, () => request<BlogPost>(`/api/posts/${encodeURIComponent(slug)}`)),
   reading: (slug: string) => reading.get(slug, () => request<ArticleReading>(`/api/posts/${encodeURIComponent(slug)}/reading`)),
   login: (username: string, password: string) => request<{ token: string; expiresAt: string }>("/api/admin/login", { method: "POST", body: JSON.stringify({ username, password }) }),
@@ -95,7 +124,7 @@ export const blogAPI = {
   draft: (token: string, id: string) => request<BlogPost>(`/api/admin/posts/${encodeURIComponent(id)}`, {}, token),
   save: async (token: string, data: PostInput, id?: string) => {
     const post = await request<BlogPost>(id ? `/api/admin/posts/${encodeURIComponent(id)}` : "/api/admin/posts", { method: id ? "PUT" : "POST", body: JSON.stringify(data) }, token);
-    articles.clear(); reading.clear(); postPages.clear();
+    articles.clear(); reading.clear(); postPages.clear(); postArchive.clear();
     return post;
   },
   tools: (refresh = false) => {

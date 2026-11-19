@@ -1,4 +1,5 @@
 import { AppText } from "@/components/app-text";
+import { BlogTagCloud } from "@/components/blog-tag-cloud";
 import {
   Eyebrow,
   Loading,
@@ -90,41 +91,7 @@ export default function Home() {
           />
         </View>
       </View>
-      <View
-        className="mb-12 gap-6 border-y py-7 sm:flex-row"
-        style={{ borderColor: colors.border }}
-      >
-        {[
-          [
-            zh ? "认真记录" : "Thoughtful writing",
-            zh
-              ? "技术、观察与生活，留下值得回看的文字。"
-              : "Technology, observations, and stories to revisit.",
-          ],
-          [
-            zh ? "简单实用" : "Useful by design",
-            zh
-              ? "从安静提问开始，逐步收集顺手的小工具。"
-              : "Starting with quiet questions, a collection that grows.",
-          ],
-          [
-            zh ? "自在阅读" : "Room to read",
-            zh
-              ? "无需登录即可阅读，手机与桌面都舒适。"
-              : "Read without an account, on your phone or desktop.",
-          ],
-        ].map(([title, description]) => (
-          <View key={title} className="flex-1">
-            <AppText className="mb-2 text-base font-semibold">{title}</AppText>
-            <AppText
-              className="text-sm leading-6"
-              style={{ color: colors.secondary }}
-            >
-              {description}
-            </AppText>
-          </View>
-        ))}
-      </View>
+      <BlogTagCloud />
       <Eyebrow>RECENT STORIES</Eyebrow>
       <View className="flex-row items-center justify-between gap-4">
         <AppText

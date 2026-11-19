@@ -184,6 +184,11 @@ svg[aria-hidden="true"] {
   .glass-button--dark.glass-button--danger { background-color: #422c29; }
 }
 
+.blog-tag:focus-visible {
+  outline: 2px solid #628875;
+  outline-offset: 3px;
+}
+
 .tool-card:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: 3px;

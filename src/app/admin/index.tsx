@@ -11,6 +11,10 @@ import { useAdminRefresh } from "@/lib/use-admin-refresh";
 import type { BlogPost } from "@/types/blog";
 
 const pageSize = 12;
+const postSections = [
+  { status: "draft", title: "草稿", emptyMessage: "暂无草稿。" },
+  { status: "published", title: "已发布", emptyMessage: "暂无已发布文章。" },
+] as const;
 
 export default function Studio() {
   const { token, setToken } = useBlogSession();
@@ -75,7 +79,20 @@ export default function Studio() {
     <AppText className="mb-8 text-sm leading-6">草稿会自动保存并同步到已登录的设备。发布后的文章会出现在公开博客中。</AppText>
     <View className="mb-5 gap-3 sm:flex-row"><View className="flex-1"><AppButton iconName="edit" label="写一篇新文章" onPress={() => router.push("/admin/editor")} /></View><AppButton iconName="logout" label="退出登录" variant="secondary" onPress={() => void logout()} /></View>
     {Boolean(error) && <Notice message={error} retry={() => void load()} />}
-    {posts.map(post => <PostRow key={post.id} post={post} admin />)}
+    {posts.length > 0 && postSections.map(({ status, title, emptyMessage }) => {
+      const sectionPosts = posts.filter(post => post.status === status);
+      return (
+        <View key={status} className="mb-8 mt-4">
+          <AppText accessibilityRole="header" className="text-xl font-semibold">{title}</AppText>
+          {sectionPosts.map(post => <PostRow key={post.id} post={post} admin />)}
+          {sectionPosts.length === 0 && (
+            <AppText className="mt-3 text-sm leading-6">
+              {more ? `已加载的文章中暂无「${title}」项。` : emptyMessage}
+            </AppText>
+          )}
+        </View>
+      );
+    })}
     {busy && <Loading />}
     {!busy && !error && !posts.length && <Notice message="写作台还是空的。从第一篇文章开始吧。" />}
     {more && !busy && <AppButton iconName="plus" label="加载更多" variant="secondary" onPress={() => void load(true)} />}
