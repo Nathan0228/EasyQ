@@ -1,4 +1,10 @@
 const methods = new Set(["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"]);
+const siteOrigin = "https://easyq.findingai.top";
+const sitemapPaths = ["/", "/blog", "/tools", "/traval", "/ask"];
+const postPageSize = 50;
+// The Workers Free plan allows 50 upstream requests per invocation.
+const maxPostPages = 50;
+const apiTimeout = 12000;
 
 function failure(message, status) {
   return new Response(JSON.stringify({ error: message }), {
@@ -7,9 +13,91 @@ function failure(message, status) {
   });
 }
 
+function apiOrigin(env, requestOrigin) {
+  const upstream = new URL(env.API_ORIGIN);
+  if (upstream.protocol !== "https:" || upstream.username || upstream.password
+    || upstream.pathname !== "/" || upstream.search || upstream.hash || upstream.origin === requestOrigin) {
+    throw new Error("invalid API origin");
+  }
+  return upstream;
+}
+
+async function sitemap(env, requestOrigin) {
+  let upstream;
+  try {
+    upstream = apiOrigin(env, requestOrigin);
+  } catch {
+    return failure("API 代理地址配置错误", 503);
+  }
+  upstream.pathname = "/api/posts";
+  upstream.searchParams.set("limit", String(postPageSize));
+
+  const entries = new Map(sitemapPaths.map((path) => [path, ""]));
+  const signal = AbortSignal.timeout(apiTimeout);
+  try {
+    for (let page = 0; page < maxPostPages; page++) {
+      upstream.searchParams.set("offset", String(page * postPageSize));
+      const response = await fetch(upstream, {
+        headers: { Accept: "application/json" },
+        redirect: "manual",
+        signal,
+        cf: { cacheTtl: 0, cacheEverything: false },
+      });
+      if (!response.ok) {
+        await response.body?.cancel();
+        return failure("暂时无法读取已发布文章", 502);
+      }
+
+      const data = await response.json();
+      if (!Array.isArray(data?.posts) || typeof data.hasMore !== "boolean"
+        || data.posts.length > postPageSize || (data.hasMore && data.posts.length !== postPageSize)) {
+        return failure("文章列表格式错误", 502);
+      }
+      for (const post of data.posts) {
+        if (post?.status !== "published") continue;
+        // Match the public API's slug format so each loc contains a single XML-safe path segment.
+        if (typeof post.slug !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(post.slug)) {
+          return failure("文章网址格式错误", 502);
+        }
+        const updated = Date.parse(post.updatedAt);
+        entries.set(`/blog/${post.slug}`, Number.isFinite(updated) ? new Date(updated).toISOString() : "");
+      }
+      if (!data.hasMore) {
+        const urls = Array.from(entries, ([path, updated]) =>
+          `  <url><loc>${siteOrigin}${path}</loc>${updated ? `<lastmod>${updated}</lastmod>` : ""}</url>`,
+        );
+        return new Response([
+          '<?xml version="1.0" encoding="UTF-8"?>',
+          '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+          ...urls,
+          "</urlset>",
+          "",
+        ].join("\n"), {
+          headers: {
+            "Content-Type": "application/xml; charset=utf-8",
+            "Cache-Control": "public, max-age=60",
+          },
+        });
+      }
+    }
+    return failure("站点地图超过文章分页上限", 503);
+  } catch {
+    return signal.aborted
+      ? failure("读取文章列表超时，请稍后重试", 504)
+      : failure("暂时无法读取已发布文章", 502);
+  }
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
+    if (url.pathname === "/sitemap.xml") {
+      if (request.method !== "GET" && request.method !== "HEAD") {
+        return new Response(null, { status: 405, headers: { Allow: "GET, HEAD" } });
+      }
+      const response = await sitemap(env, url.origin);
+      return request.method === "HEAD" ? new Response(null, response) : response;
+    }
     if (url.pathname !== "/api" && !url.pathname.startsWith("/api/")) {
       return env.ASSETS.fetch(request);
     }
@@ -21,11 +109,7 @@ export default {
 
     let upstream;
     try {
-      upstream = new URL(env.API_ORIGIN);
-      if (upstream.protocol !== "https:" || upstream.username || upstream.password
-        || upstream.pathname !== "/" || upstream.search || upstream.hash || upstream.origin === url.origin) {
-        throw new Error("invalid API origin");
-      }
+      upstream = apiOrigin(env, url.origin);
     } catch {
       return failure("API 代理地址配置错误", 503);
     }
@@ -43,7 +127,7 @@ export default {
     // never caches API responses, including authenticated requests.
     headers.set("Cache-Control", /(?:^|,)\s*no-cache\s*(?:,|$)/i.test(request.headers.get("Cache-Control") || "") ? "no-cache" : "no-store");
     const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 12000);
+    const timer = setTimeout(() => controller.abort(), apiTimeout);
     try {
       const response = await fetch(upstream, {
         method: request.method,
