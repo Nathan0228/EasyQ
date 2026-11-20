@@ -1,5 +1,6 @@
+import { blogFallbackMetadata, getArticleMetadata, getArticleSlug, getPageMetadata, siteOrigin } from "../src/lib/page-metadata.mjs";
+
 const methods = new Set(["GET", "HEAD", "POST", "PUT", "DELETE", "OPTIONS"]);
-const siteOrigin = "https://easyq.findingai.top";
 const sitemapPaths = ["/", "/blog", "/tools", "/traval", "/ask"];
 const postPageSize = 50;
 // The Workers Free plan allows 50 upstream requests per invocation.
@@ -20,6 +21,62 @@ function apiOrigin(env, requestOrigin) {
     throw new Error("invalid API origin");
   }
   return upstream;
+}
+
+async function articleMetadata(slug, env, requestOrigin) {
+  try {
+    const upstream = apiOrigin(env, requestOrigin);
+    upstream.pathname = `/api/posts/${slug}`;
+    const response = await fetch(upstream, {
+      headers: { Accept: "application/json" },
+      redirect: "manual",
+      signal: AbortSignal.timeout(2000),
+      cf: { cacheTtl: 0, cacheEverything: false },
+    });
+    if (!response.ok) {
+      await response.body?.cancel();
+      return blogFallbackMetadata;
+    }
+    return getArticleMetadata(await response.json(), slug) ?? blogFallbackMetadata;
+  } catch {
+    // Let the SPA open normally if the metadata request cannot complete.
+    return blogFallbackMetadata;
+  }
+}
+
+function escapeHtml(value) {
+  return value.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+}
+
+async function servePage(request, url, env) {
+  const page = getPageMetadata(url.pathname);
+  const slug = getArticleSlug(url.pathname);
+  if (request.method !== "GET" || (!page && !slug)) return env.ASSETS.fetch(request);
+
+  // The HTML template's validators do not account for changes to an article.
+  const assetRequest = new Request(request);
+  assetRequest.headers.delete("If-None-Match");
+  assetRequest.headers.delete("If-Modified-Since");
+  const asset = await env.ASSETS.fetch(assetRequest);
+  if (asset.status !== 200 || !asset.headers.get("Content-Type")?.startsWith("text/html")) return asset;
+
+  const { title, description, canonical } = slug ? await articleMetadata(slug, env, url.origin) : page;
+  const body = new HTMLRewriter()
+    .on("head > title", { element: (element) => element.setInnerContent(title) })
+    .on('head > meta[name="description"]', {
+      element: (element) => element.replace(`<meta name="description" content="${escapeHtml(description)}">`, { html: true }),
+    })
+    .on("head", {
+      element(element) {
+        if (canonical) element.append(`<link rel="canonical" href="${escapeHtml(canonical)}">`, { html: true });
+      },
+    })
+    .transform(asset);
+  const response = new Response(body.body, body);
+  response.headers.delete("ETag");
+  response.headers.delete("Last-Modified");
+  response.headers.set("Cache-Control", "no-cache");
+  return response;
 }
 
 async function sitemap(env, requestOrigin) {
@@ -99,7 +156,7 @@ export default {
       return request.method === "HEAD" ? new Response(null, response) : response;
     }
     if (url.pathname !== "/api" && !url.pathname.startsWith("/api/")) {
-      return env.ASSETS.fetch(request);
+      return servePage(request, url, env);
     }
     if (!methods.has(request.method)) return failure("不支持的请求方法", 405);
 

@@ -2,9 +2,11 @@ import { usePathname } from "expo-router";
 import type { ReactNode } from "react";
 import { BrandHeaderContent } from "@/components/ui";
 import { useApp } from "@/context/app-context";
+import { usePageMetadata } from "@/lib/use-page-metadata";
 
 export function SiteFrame({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  usePageMetadata(pathname);
   const { colors, questions, ready } = useApp();
   const isQuestion = pathname.startsWith("/question/");
   const question = questions.find(item => pathname === `/question/${item.id}`);

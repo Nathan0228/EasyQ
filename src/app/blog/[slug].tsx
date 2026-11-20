@@ -9,6 +9,7 @@ import { Eyebrow, Loading, Notice, PortalScreen, TextLink } from "@/components/p
 import { useApp } from "@/context/app-context";
 import { blogAPI, cachedArticle, siteAuthor } from "@/lib/blog-api";
 import { useArticleReadingPosition } from "@/lib/use-article-reading-position";
+import { updateArticleMetadata } from "@/lib/use-page-metadata";
 import type { BlogPost } from "@/types/blog";
 
 export default function Article() {
@@ -30,7 +31,10 @@ function ArticleContent({ slug }: { slug: string }) {
     void blogAPI.reading(slug).catch(() => {});
     try {
       const result = await blogAPI.article(slug);
-      if (id === requestID.current) setPost(result);
+      if (id === requestID.current) {
+        setPost(result);
+        updateArticleMetadata(slug, result);
+      }
     } catch (e) {
       if (id === requestID.current) { setPost(null); setError(e instanceof Error ? e.message : "加载失败"); }
     } finally { if (id === requestID.current) setBusy(false); }
