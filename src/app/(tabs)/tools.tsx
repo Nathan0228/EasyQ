@@ -1,16 +1,31 @@
 import { AppText } from "@/components/app-text";
+import { InternalToolsCarousel, internalToolCount } from "@/components/internal-tools-carousel";
 import { Loading, Notice, PortalScreen } from "@/components/portal-ui";
-import {
-  ExternalToolCard,
-  QuietQuestionsCard,
-  TravalCard,
-} from "@/components/tool-card";
+import { ExternalToolCard } from "@/components/tool-card";
 import { useApp } from "@/context/app-context";
 import { apiConfigured, blogAPI, cachedTools } from "@/lib/blog-api";
 import type { ExternalTool } from "@/types/tool";
 import { useFocusEffect } from "expo-router";
 import { useCallback, useRef, useState } from "react";
 import { View } from "react-native";
+
+function ToolSectionTitle({ title, count }: { title: string; count?: number }) {
+  const { colors } = useApp();
+  return (
+    <View className="flex-row items-start gap-1.5">
+      <AppText
+        accessibilityRole="header"
+        accessibilityLabel={count === undefined ? title : `${title} ${count}`}
+        className="text-lg font-semibold"
+      >
+        {title}
+      </AppText>
+      {count !== undefined && (
+        <AppText aria-hidden className="text-xs font-semibold leading-4" style={{ color: colors.accent }}>{count}</AppText>
+      )}
+    </View>
+  );
+}
 
 export default function Tools() {
   const { colors, language } = useApp();
@@ -52,24 +67,15 @@ export default function Tools() {
       >
         {zh ? "工具箱" : "Toolbox"}
       </AppText>
-      <AppText
-        accessibilityRole="header"
-        className="mb-3 text-lg font-semibold"
-      >
-        {zh ? "站内工具" : "EasyQ tools"}
-      </AppText>
-      <View className="gap-4 md:flex-row">
-        <View className="md:flex-1">
-          <TravalCard />
-        </View>
-        <View className="md:flex-1">
-          <QuietQuestionsCard />
-        </View>
+      <View className="mb-3">
+        <ToolSectionTitle title={zh ? "站内工具" : "EasyQ tools"} count={internalToolCount} />
       </View>
+      <InternalToolsCarousel />
       <View className="mb-4 mt-9 flex-row items-center gap-4">
-        <AppText accessibilityRole="header" className="text-lg font-semibold">
-          {zh ? "站外工具" : "External tools"}
-        </AppText>
+        <ToolSectionTitle
+          title={zh ? "站外工具" : "External tools"}
+          count={tools.length > 0 || (!busy && !error) ? tools.length : undefined}
+        />
         <View
           className="h-px flex-1"
           style={{ backgroundColor: colors.border }}

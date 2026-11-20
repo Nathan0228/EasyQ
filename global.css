@@ -200,6 +200,22 @@ svg[aria-hidden="true"] {
   outline-offset: 3px;
 }
 
+#internal-tools-rail {
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+}
+
+.tool-carousel-slide {
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
+
+.internal-tool-card:focus-visible,
+.tool-carousel-control:focus-visible {
+  outline: 2px solid #628875;
+  outline-offset: -2px;
+}
+
 @media (hover: hover) {
   .tool-card:hover { opacity: 0.85; }
 }

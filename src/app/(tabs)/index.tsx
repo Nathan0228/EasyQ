@@ -1,5 +1,6 @@
 import { AppText } from "@/components/app-text";
 import { BlogTagCloud } from "@/components/blog-tag-cloud";
+import { NewestTool } from "@/components/newest-tool";
 import {
   Eyebrow,
   Loading,
@@ -90,6 +91,7 @@ export default function Home() {
         </View>
       </View>
       <BlogTagCloud />
+      <NewestTool />
       <Eyebrow>RECENT STORIES</Eyebrow>
       <View className="flex-row items-center justify-between gap-4">
         <AppText
